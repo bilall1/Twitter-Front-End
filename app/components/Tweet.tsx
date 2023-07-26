@@ -3,7 +3,7 @@ import profile from "../assets/profile.png"
 import Image from 'next/image'
 import like from "../assets/like.png"
 import comment from "../assets/comment.png"
-import random1 from "../assets/random1.jpg"
+import dummy from "../assets/dummy.png"
 
 interface ChildProps {
     email :string,
@@ -19,7 +19,7 @@ const Tweet : React.FC<ChildProps> = ({ email,content,FirstName,LastName }) => {
             <div className=" flex py-3">
             
             <div className='flex px-2 ' >
-                    <Image className="h-16 w-16 mr-2 rounded-full h" src={random1} alt="" />
+                    <Image className="h-16 w-16 mr-2 rounded-full h" src={dummy} alt="" />
                     
                     <div className='flex-col px-1 pt-1'>
                     <h2 className="text-2xl ">{FirstName} {LastName}</h2>

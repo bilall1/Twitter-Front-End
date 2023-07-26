@@ -46,7 +46,9 @@ export default function FollowList() {
     }
 
     useEffect(() => {
-        retrievePeopleToFollow()
+        // if(userEmail!="Invalid"){
+            retrievePeopleToFollow()
+        // }
     }, [userEmail])
 
 
