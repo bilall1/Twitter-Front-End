@@ -5,6 +5,10 @@ import Tweet from './Tweet';
 
 
 const homeMidSection = () => {
+    const [page, setPage] = useState(1);
+    const [loading, setLoading] = useState(false);
+
+
     const { data: session } = useSession({
         required: true
     })
@@ -18,30 +22,45 @@ const homeMidSection = () => {
         // include other properties of a tweet as necessary
     }
 
-    interface TweetsData {
-        Tweets: Tweet[];
-
-    }
-
     const userEmail = session?.user?.email || 'invalid' // Handle null session or missing email
-    const [tweets, setTweets] = useState<TweetsData | null>(null);
+    const [tweets, setTweets] = useState<Tweet[] | null>(null);
+
 
     const retrieveTweets = async () => {
+        setLoading(true);
+
         const postData = {
-            "Email": userEmail
+            "Email": userEmail,
+            "Page": page
         }
         try {
             const response = await apiClient.post('/getFollowersTweet', postData);
-            console.log(response.data);
-            setTweets(response.data);
+            setTweets(oldTweets => (oldTweets ? [...oldTweets, ...response.data.Tweets] : response.data.Tweets));
+
+            //    / setTweets(oldTweets => (oldTweets ? [...oldTweets, ...response.data] : response.data));
+            // setTweets(response.data);
         } catch (error) {
             console.error('Error while retrieving home tweets:');
         }
+        setLoading(false);
     }
 
     useEffect(() => {
         retrieveTweets()
-    }, [userEmail])
+    }, [userEmail, page])
+
+    const handleScroll = (event: any) => {
+        const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+        if (clientHeight + scrollTop !== scrollHeight) return;
+        setPage(oldPage => oldPage + 1);
+    };
+
+    useEffect(() => {
+        window.addEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
 
 
 
@@ -64,7 +83,6 @@ const homeMidSection = () => {
         }
 
         const response = await apiClient.post('/postTweet', postData);
-        console.log('Tweet Response:', response.data);
 
     };
     return (
@@ -93,12 +111,12 @@ const homeMidSection = () => {
             </div>
 
             <div className="py-4 px-2">
-                {tweets && tweets.Tweets && tweets.Tweets.map((tweet: { ID: string, Content: string, FirstName: string, LastName: string, Email: string }, index: React.Key | null | undefined) => (
+                {tweets && tweets.map((tweet: Tweet, index: React.Key | null | undefined) => (
                     <div className='pb-2' key={index}>
-                        <Tweet key={index} email={tweet.Email} content={tweet.Content} FirstName={tweet.FirstName} LastName={tweet.LastName} />
+                        <Tweet email={tweet.Email} content={tweet.Content} FirstName={tweet.FirstName} LastName={tweet.LastName} />
                     </div>
-
                 ))}
+                {loading && <p>Loading...</p>}
 
             </div>
 

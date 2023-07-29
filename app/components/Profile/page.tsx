@@ -1,28 +1,32 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import SideBar from '../SideBar'
-import Tweet from '../Tweet'
+import DaTweetsData from '../Tweet'
 import RightBar from '../RightBar'
 import apiClient from '@/app/api/api'
 import { signOut, useSession } from 'next-auth/react'
+import ProfileRightBar from '../ProfileRightBar'
+import Tweet from '../Tweet'
 
 
 const Profile = () => {
+
+  const [page, setPage] = useState(1);
 
   interface Tweet {
     ID: string;
     Content: string;
     // include other properties of a tweet as necessary
   }
-  
+
   interface TweetsData {
     Tweets: Tweet[];
-    Email : string ;
+    Email: string;
     FirstName: string;
-    LastName:string;
+    LastName: string;
   }
-  
-  const [tweets, setTweets] = useState<TweetsData | null>(null);
+
+  const [tweets, setTweets] = useState<TweetsData>({ Tweets: [], Email: '', FirstName: '', LastName: '' });
 
 
   const { data: session } = useSession({
@@ -32,41 +36,60 @@ const Profile = () => {
 
   const retrieveTweets = async () => {
     const postData = {
-      "Email": userEmail
+      "Email": userEmail,
+      "Page": page
     }
     try {
       const response = await apiClient.post('/getTweets', postData);
-      console.log(response.data);
-      setTweets(response.data);
+      setTweets(prevTweets => ({
+        ...response.data,
+        Tweets: [...prevTweets.Tweets, ...response.data.Tweets]
+      }));
     } catch (error) {
-      console.error('Error while retrieving tweets:', error);
+      console.error('Error while retrieving tweets:');
     }
   }
 
-    useEffect(() => {
-      retrieveTweets()
-    }, [userEmail])
+  useEffect(() => {
+    retrieveTweets()
+  }, [userEmail, page])
+
+
+
+  const handleScroll = (event: any) => {
+    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+    if (clientHeight + scrollTop !== scrollHeight) return;
+    setPage(oldPage => oldPage + 1);
+  };
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   return (
     <div className='flex h-screen w-screen font-sans'>
 
       <SideBar />
 
-      <div className='w-full h-full flex flex-col pt-10'>
+      <div className='w-full h-full flex flex-col pt-10 '>
 
         <div>
           <h1 className="text-3xl text-gray-900 dark:text-white px-2">Profile </h1>
         </div>
 
         <div className="py-5 px-2">
-        { tweets && tweets.Tweets && tweets.Tweets.map((tweet: { Content: string },index: React.Key | null | undefined) => (
-          <Tweet key={index} email={tweets.Email} content={tweet.Content} FirstName={tweets.FirstName} LastName={tweets.LastName}/>
-        ))} 
+          {tweets && tweets.Tweets && tweets.Tweets.map((tweet: { Content: string }, index: React.Key | null | undefined) => (
+            <Tweet key={index} email={tweets.Email} content={tweet.Content} FirstName={tweets.FirstName} LastName={tweets.LastName} />
+          ))}
+
         </div>
 
       </div>
 
-      <RightBar />
+      <ProfileRightBar />
 
     </div>
   )

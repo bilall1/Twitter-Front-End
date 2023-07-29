@@ -19,8 +19,7 @@ export default function FollowList() {
     }
 
     const [toFollow, setToFollow] = useState<UserData | null>(null);
-
-    const [followed, setFollowed] = useState(false);
+    const [changeInList, setChangeInList] = useState(0);
 
     const { data: session } = useSession({
         required: true
@@ -37,7 +36,6 @@ export default function FollowList() {
             }
 
             const response = await apiClient.post('/getPeopleToFollow', postData);
-            console.log(response.data)
             setToFollow(response.data)
         } catch (error) {
             console.error('Error loading people to follow');
@@ -49,7 +47,7 @@ export default function FollowList() {
         // if(userEmail!="Invalid"){
             retrievePeopleToFollow()
         // }
-    }, [userEmail])
+    }, [userEmail,changeInList])
 
 
     const handleFollow = async (userId: string) => {
@@ -79,10 +77,9 @@ export default function FollowList() {
                     }
 
                     const response = await apiClient.post('/addtofollowerList', postData);
-                    console.log(response.data)
                     setToFollow(response.data)
                 } catch (error) {
-                    console.error('Error loading people to follow');
+                    console.error('Error adding people to followlist');
                 }
 
                 userToFollow.Followed = true;
@@ -91,11 +88,20 @@ export default function FollowList() {
         }
 
         setToFollow(updatedToFollow);
+        if(changeInList == 1){
+            setChangeInList(0)
+
+        }
+        else{
+            setChangeInList(1)
+        }
+        
     }
 
 
     return (
-        <div>
+        //style={{ maxHeight: "290 px", overflowY: "scroll" }}
+        <div className='mr-5'  >
             {toFollow && toFollow.people && toFollow.people.map((people: { Followed: boolean, Id: string, FirstName: string, LastName: string }, index: React.Key | null | undefined) => (
                 <div className='pl-3 pt-3 flex-col py-2' key={index}>
                     <div className='flex'>
