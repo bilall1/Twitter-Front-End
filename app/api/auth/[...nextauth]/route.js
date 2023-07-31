@@ -43,7 +43,8 @@ const handler = NextAuth({
 
     callbacks: {
 
-        async signIn(user, account, profile) {
+        async signIn(user, account, profile) {  
+          
 
             if (user.account.type == 'credentials') {
                 return true

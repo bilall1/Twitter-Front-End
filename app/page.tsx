@@ -10,8 +10,11 @@ import HomeMidSection from './components/HomeMidSection'
 import Tweet from './components/Tweet'
 import apiClient from './api/api'
 
-export default function Home() {
 
+import { useAppSelector, useAppDispatch } from "./hooks"
+import { fetchUsers } from "../features/user/userSlice"
+
+export default function Home() {
 
   const router = useRouter()
 
@@ -19,16 +22,27 @@ export default function Home() {
     required: true
   })
 
+  const userEmail = session?.user?.email || 'invalid' // Handle null session or missing email
 
   useEffect(() => {
+    if(userEmail!="invalid"){
+      console.log("Dispatched called")
+      dispatch(fetchUsers(userEmail))
+    }
 
-    const userEmail = session?.user?.email || 'invalid' // Handle null session or missing email
-
-  }, [session])
+  }, [userEmail])
 
   if (!session) {
     //Loading screen
   }
+  const user = useAppSelector(state => state.user)
+  const dispatch = useAppDispatch()
+
+  
+  // useEffect(() => {
+  //   dispatch(fetchUsers("userEmail"))
+  // }, [userEmail])
+
 
 
   return (
