@@ -2,9 +2,14 @@ import React, { useEffect, useState } from 'react'
 import apiClient from '../api/api';
 import { useSession } from 'next-auth/react';
 import Tweet from './Tweet';
+import { useAppSelector } from '../hooks';
 
 
 const homeMidSection = () => {
+
+    //Redux store 
+    const user = useAppSelector(state => state.user)
+
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
 
@@ -29,8 +34,9 @@ const homeMidSection = () => {
     const retrieveTweets = async () => {
         setLoading(true);
 
+        console.log(user)
         const postData = {
-            "Email": userEmail,
+            "Id": user.user.Id,
             "Page": page
         }
         try {
@@ -46,8 +52,10 @@ const homeMidSection = () => {
     }
 
     useEffect(() => {
-        retrieveTweets()
-    }, [userEmail, page])
+        if(userEmail!="invalid"){
+            retrieveTweets()
+        }
+    }, [userEmail, page, user.user])
 
     const handleScroll = (event: any) => {
         const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
