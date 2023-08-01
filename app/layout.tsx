@@ -4,8 +4,11 @@ import { Inter } from 'next/font/google'
 import Provider1 from "./components/Provider1"
 import ReduxProvider from "../app/components/ReduxProvider"
 import SideBar from './components/SideBar'
+import { useSession } from 'next-auth/react'
+import { useEffect } from 'react'
 
-
+import { useAppSelector, useAppDispatch } from "../app/hooks"
+import { fetchUsers } from '@/features/user/userSlice'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -16,15 +19,18 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children
+
 }: {
   children: React.ReactNode
+  
 }) {
+
   return (
     <html lang="en">
 
       <ReduxProvider>
 
-        <Provider1 >
+        <Provider1 >  
 
           <body className={inter.className}>{children}</body>
 
