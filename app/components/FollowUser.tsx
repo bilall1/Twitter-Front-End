@@ -3,8 +3,12 @@ import Image from "next/image";
 import dummy from "../assets/dummy.png"
 import { useSession } from 'next-auth/react';
 import apiClient from '../api/api';
+import { useAppSelector } from '../hooks';
 
 export default function FollowList() {
+
+    //Redux store 
+    const user = useAppSelector(state => state.user)
 
     interface User {
         Id: string
@@ -32,7 +36,7 @@ export default function FollowList() {
         try {
 
             const postData = {
-                "Email": userEmail
+                "Id": user.user.Id
             }
 
             const response = await apiClient.post('/getPeopleToFollow', postData);
@@ -47,7 +51,7 @@ export default function FollowList() {
         // if(userEmail!="Invalid"){
             retrievePeopleToFollow()
         // }
-    }, [userEmail,changeInList])
+    }, [userEmail,changeInList,user.user])
 
 
     const handleFollow = async (userId: string) => {
@@ -72,7 +76,7 @@ export default function FollowList() {
                 try {
 
                     const postData = {
-                        "Email": userEmail,
+                        "UserId": user.user.Id,
                         "FollowerId": userId
                     }
 
