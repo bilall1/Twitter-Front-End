@@ -8,8 +8,13 @@ import { signOut, useSession } from 'next-auth/react'
 import ProfileRightBar from '../ProfileRightBar'
 import Tweet from '../Tweet'
 
+import { useAppSelector } from '../../hooks';
+
 
 const Profile = () => {
+
+   //Redux store 
+   const user = useAppSelector(state => state.user)
 
   const [page, setPage] = useState(1);
 
@@ -78,6 +83,8 @@ const Profile = () => {
 
         <div>
           <h1 className="text-3xl text-gray-900 dark:text-white px-2">Profile </h1>
+
+          {user.user.Id}
         </div>
 
         <div className="py-5 px-2">
