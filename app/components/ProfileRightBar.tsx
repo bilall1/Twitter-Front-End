@@ -3,8 +3,13 @@ import Image from 'next/image'
 import apiClient from '../api/api'
 import { useSession } from 'next-auth/react'
 import dummy from "../assets/dummy.png"
+import { useAppSelector } from '../hooks'
 
 const ProfileRightBar = () => {
+
+
+    //Redux store 
+    const user = useAppSelector(state => state.user)
 
     const [followingPage, setFollowingPage] = useState(1);
     const [followerPage, setFollowerPage] = useState(1);
@@ -29,7 +34,7 @@ const ProfileRightBar = () => {
     const retrievefollowing = async () => {
 
         const postData = {
-            "Email": userEmail,
+            "Id": user.user.Id,
             "Page": followingPage
         }
         try {
@@ -73,7 +78,7 @@ const ProfileRightBar = () => {
     const retrievefollowers = async () => {
 
         const postData = {
-            "Email": userEmail,
+            "Id": user.user.Id,
             "Page": followerPage
         }
         try {
@@ -113,15 +118,15 @@ const ProfileRightBar = () => {
 
     useEffect(() => {
         retrievefollowing()
-    }, [userEmail,followingPage])
+    }, [userEmail,followingPage,user.user])
 
     useEffect(() => {
         retrievefollowers()
-    }, [userEmail])
+    }, [userEmail,user.user])
 
     const handleUnfollow = async (userId: string) => {
         const postData = {
-            "Email": userEmail,
+            "UserId":user.user.Id,
             "FollowerId": userId
         }
         try {

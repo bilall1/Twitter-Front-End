@@ -86,7 +86,7 @@ const homeMidSection = () => {
         //Post tweet request to data base 
 
         const postData = {
-            "Email": userEmail,
+            "Id": user.user.Id,
             "Content": content
         }
 

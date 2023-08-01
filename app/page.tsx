@@ -22,7 +22,7 @@ export default function Home() {
   useEffect(() => {
     if(userEmail!="invalid"){
       dispatch(fetchUsers(userEmail))
-      console.log("Dispatcher Called")
+      console.log("Dispatcher Called") 
     }
 
   }, [userEmail])
