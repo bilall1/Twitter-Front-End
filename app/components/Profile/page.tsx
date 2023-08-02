@@ -19,7 +19,7 @@ const Profile = () => {
   const [page, setPage] = useState(1);
 
   interface Tweet {
-    ID: string;
+    Id: number;
     Content: string;
     // include other properties of a tweet as necessary
   }
@@ -87,8 +87,8 @@ const Profile = () => {
         </div>
 
         <div className="py-5 px-2">
-          {tweets && tweets.Tweets && tweets.Tweets.map((tweet: { Content: string }, index: React.Key | null | undefined) => (
-            <Tweet key={index} email={tweets.Email} content={tweet.Content} FirstName={tweets.FirstName} LastName={tweets.LastName} />
+          {tweets && tweets.Tweets && tweets.Tweets.map((tweet: { Content: string ,Id :number} , index: React.Key | null | undefined) => (
+            <Tweet key={index} email={tweets.Email} content={tweet.Content} FirstName={tweets.FirstName} LastName={tweets.LastName} TweetId={tweet.Id} />
           ))}
 
         </div>

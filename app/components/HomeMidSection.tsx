@@ -19,7 +19,7 @@ const homeMidSection = () => {
     })
 
     interface Tweet {
-        ID: string;
+        Id: number;
         Content: string;
         Email: string;
         FirstName: string;
@@ -120,7 +120,7 @@ const homeMidSection = () => {
             <div className="py-4 px-2">
                 {tweets && tweets.map((tweet: Tweet, index: React.Key | null | undefined) => (
                     <div className='pb-2' key={index}>
-                        <Tweet email={tweet.Email} content={tweet.Content} FirstName={tweet.FirstName} LastName={tweet.LastName} />
+                        <Tweet email={tweet.Email} content={tweet.Content} FirstName={tweet.FirstName} LastName={tweet.LastName} TweetId={tweet.Id} />
                     </div>
                 ))}
                 {loading && <p>Loading...</p>}
