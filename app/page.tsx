@@ -22,13 +22,13 @@ export default function Home() {
   useEffect(() => {
     if(userEmail!="invalid"){
       dispatch(fetchUsers(userEmail))
-      console.log("Dispatcher Called") 
+      console.log("Dispatcher was called")
     }
 
   }, [userEmail])
 
   if (!session) {
-    //Loading screen
+    <p>Loading</p>
   }
   const user = useAppSelector(state => state.user)
   const dispatch = useAppDispatch()

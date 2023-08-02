@@ -9,6 +9,7 @@ import { useEffect } from 'react'
 
 import { useAppSelector, useAppDispatch } from "../app/hooks"
 import { fetchUsers } from '@/features/user/userSlice'
+import { Session } from 'inspector'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,15 +23,17 @@ export default function RootLayout({
 
 }: {
   children: React.ReactNode
-  
+
 }) {
+
+  //
 
   return (
     <html lang="en">
 
       <ReduxProvider>
 
-        <Provider1 >  
+        <Provider1 >
 
           <body className={inter.className}>{children}</body>
 

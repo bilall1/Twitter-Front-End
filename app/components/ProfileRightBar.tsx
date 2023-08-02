@@ -190,7 +190,7 @@ const ProfileRightBar = () => {
                         {/* Followers route created at backend. Call and map simple  */}
                     </div>
 
-                    <div className='pt-2' ref={divRef} style={{ height: '300px', overflow: 'auto', scrollbarWidth: 'none' }}>
+                    <div className='pt-2' ref={divRef1} style={{ height: '300px', overflow: 'auto', scrollbarWidth: 'none' }}>
 
                         {followers && followers.map((user: User, index: React.Key | null | undefined) => (
                             <div className='pl-3 pt-3 flex-col py-2' key={index}>
