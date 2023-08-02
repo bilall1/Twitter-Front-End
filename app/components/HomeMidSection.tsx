@@ -32,9 +32,8 @@ const homeMidSection = () => {
 
 
     const retrieveTweets = async () => {
+        //console.log(user)
         setLoading(true);
-
-        console.log(user)
         const postData = {
             "Id": user.user.Id,
             "Page": page
@@ -52,10 +51,10 @@ const homeMidSection = () => {
     }
 
     useEffect(() => {
-        if(userEmail!="invalid"){
+        if(userEmail!="invalid" && user.user.Email!=''){
             retrieveTweets()
         }
-    }, [userEmail, page, user.user])
+    }, [userEmail, page, user.user.Email])
 
     const handleScroll = (event: any) => {
         const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
