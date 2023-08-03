@@ -12,6 +12,7 @@ const homeMidSection = () => {
 
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [reloading, setReloading] = useState(0);
 
 
     const { data: session } = useSession({
@@ -42,8 +43,6 @@ const homeMidSection = () => {
             const response = await apiClient.post('/getFollowersTweet', postData);
             setTweets(oldTweets => (oldTweets ? [...oldTweets, ...response.data.Tweets] : response.data.Tweets));
 
-            //    / setTweets(oldTweets => (oldTweets ? [...oldTweets, ...response.data] : response.data));
-            // setTweets(response.data);
         } catch (error) {
             console.error('Error while retrieving home tweets:');
         }
@@ -92,6 +91,35 @@ const homeMidSection = () => {
         const response = await apiClient.post('/postTweet', postData);
 
     };
+    const deleteTweet= async  (id: number)  => {
+
+        const postData ={
+            "TweetId":id
+        }
+
+        try {
+            const response = await apiClient.post('/deleteTweet', postData);
+
+            setTweets(oldTweets => (
+                oldTweets 
+                ? oldTweets.filter(tweet => tweet.Id !== id)
+                : []
+            ));
+
+            if(reloading == 0){
+                setReloading(1)
+            }
+            else{
+                setReloading(0)
+            }
+            
+
+        } catch (error) {
+            console.error('Error while retrieving home tweets:');
+        }
+
+
+    }
     return (
         <div className='w-full h-full flex flex-col pt-12'>
 
@@ -120,7 +148,7 @@ const homeMidSection = () => {
             <div className="py-4 px-2">
                 {tweets && tweets.map((tweet: Tweet, index: React.Key | null | undefined) => (
                     <div className='pb-2' key={index}>
-                        <Tweet email={tweet.Email} content={tweet.Content} FirstName={tweet.FirstName} LastName={tweet.LastName} TweetId={tweet.Id} />
+                        <Tweet email={tweet.Email} content={tweet.Content} FirstName={tweet.FirstName} LastName={tweet.LastName} TweetId={tweet.Id} onDelete={deleteTweet}/>
                     </div>
                 ))}
                 {loading && <p>Loading...</p>}
