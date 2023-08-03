@@ -74,6 +74,9 @@ const Profile = () => {
     };
   }, []);
 
+  const deleteTweet = (id: number) => {
+  }
+
   return (
     <div className='flex h-screen w-screen font-sans'>
 
@@ -88,7 +91,7 @@ const Profile = () => {
 
         <div className="py-5 px-2">
           {tweets && tweets.Tweets && tweets.Tweets.map((tweet: { Content: string ,Id :number} , index: React.Key | null | undefined) => (
-            <Tweet key={index} email={tweets.Email} content={tweet.Content} FirstName={tweets.FirstName} LastName={tweets.LastName} TweetId={tweet.Id} />
+            <Tweet key={index} email={tweets.Email} content={tweet.Content} FirstName={tweets.FirstName} LastName={tweets.LastName} TweetId={tweet.Id} onDelete={deleteTweet}/>
           ))}
 
         </div>
