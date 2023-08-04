@@ -8,16 +8,19 @@ import { signOut, useSession } from 'next-auth/react'
 import ProfileRightBar from '../ProfileRightBar'
 import Tweet from '../Tweet'
 import random1 from "../../assets/random1.jpg"
-import { useAppSelector } from '../../hooks';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import Image from "next/image"
 import { FiEdit2 } from 'react-icons/fi';
 import { FiSave } from 'react-icons/fi';
+import { fetchUsers } from '@/features/user/userSlice'
+import { createKey } from 'next/dist/shared/lib/router/router'
 
 
 const Profile = () => {
 
   //Redux store 
   const user = useAppSelector(state => state.user)
+  const dispatch = useAppDispatch()
 
   const [page, setPage] = useState(1);
 
@@ -27,14 +30,21 @@ const Profile = () => {
     // include other properties of a tweet as necessary
   }
 
-  interface TweetsData {
-    Tweets: Tweet[];
-    Email: string;
-    FirstName: string;
-    LastName: string;
-  }
 
-  const [tweets, setTweets] = useState<TweetsData>({ Tweets: [], Email: '', FirstName: '', LastName: '' });
+  const [tweets, setTweets] = useState<Tweet[] | null>(null);
+  const [reloading, setReloading] = useState(0);
+
+
+  let date;
+  let formattedDate;
+
+  if (user.user.D_o_b == '') {
+    formattedDate = ''
+
+  } else {
+    date = new Date(user.user.D_o_b);
+    formattedDate = date.toISOString().slice(0, 10);
+  }
 
 
   const [editing, setEditing] = useState(false);
@@ -42,7 +52,7 @@ const Profile = () => {
     FirstName: user.user.FirstName,
     LastName: user.user.LastName,
     Email: user.user.Email,
-    D_o_b: user.user.D_o_b,
+    D_o_b: formattedDate,
     Password: user.user.Password
 
     // Add any other fields you want the user to be able to edit
@@ -59,6 +69,7 @@ const Profile = () => {
     event.preventDefault();
 
     try {
+
       const postData = {
         "Id": user.user.Id,
         "FirstName": formData.FirstName,
@@ -68,6 +79,7 @@ const Profile = () => {
       }
 
       const response = await apiClient.post('/updateUserData', postData);
+      dispatch(fetchUsers(userEmail))
 
     } catch (error) {
       console.error('Error while retrieving tweets:');
@@ -89,10 +101,7 @@ const Profile = () => {
     }
     try {
       const response = await apiClient.post('/getTweets', postData);
-      setTweets(prevTweets => ({
-        ...response.data,
-        Tweets: [...prevTweets.Tweets, ...response.data.Tweets]
-      }));
+      setTweets(oldTweets => (oldTweets ? [...oldTweets, ...response.data.Tweets] : response.data.Tweets));
     } catch (error) {
       console.error('Error while retrieving tweets:');
     }
@@ -100,7 +109,7 @@ const Profile = () => {
 
   useEffect(() => {
     retrieveTweets()
-  }, [userEmail, page])
+  }, [userEmail, page, reloading])
 
 
 
@@ -117,7 +126,32 @@ const Profile = () => {
     };
   }, []);
 
-  const deleteTweet = (id: number) => {
+  const deleteTweet = async (id: number) => {
+    const postData = {
+      "TweetId": id
+    }
+
+    try {
+      const response = await apiClient.post('/deleteTweet', postData);
+
+      setTweets(oldTweets => (
+        oldTweets
+          ? oldTweets.filter(tweet => tweet.Id !== id)
+          : []
+      ));
+
+      if(reloading == 0){
+        setReloading(1)
+    }
+    else{
+        setReloading(0)
+    }
+  
+
+
+    } catch (error) {
+      console.error('Error while retrieving home tweets:');
+    }
   }
 
   return (
@@ -140,7 +174,13 @@ const Profile = () => {
             <p className="text-lg text-gray-600"> {user.user.Email} </p>
             <span className='flex'>
               <p className="text-lg text-gray-600 font-bold" >Date of Birth:</p>
-              <p className="text-lg text-gray-600">{editing ? <input type="date" name="D_o_b" value={formData.D_o_b} onChange={handleInputChange} className="border rounded px-2 py-1" /> : user.user.D_o_b}</p>
+              <p className="text-lg text-gray-600">
+
+                {editing ?
+                  <input type="date" name="D_o_b" value={formData.D_o_b} onChange={handleInputChange} className="border rounded px-2 py-1" />
+                  :
+                  formattedDate}
+              </p>
 
             </span>
 
@@ -150,11 +190,6 @@ const Profile = () => {
 
             </span>
 
-
-
-
-            {/* Do not display passwords. It's a security risk */}
-            {/* If you want to allow users to change their password, create a separate secure form for that purpose */}
           </div>
 
           {editing ?
@@ -179,9 +214,10 @@ const Profile = () => {
         </div>
 
         <div className="py-4 px-2 flex flex-col " >
-          {tweets && tweets.Tweets && tweets.Tweets.map((tweet: { Content: string, Id: number }, index: React.Key | null | undefined) => (
-            <Tweet key={index} email={tweets.Email} content={tweet.Content} FirstName={tweets.FirstName} LastName={tweets.LastName} TweetId={tweet.Id} onDelete={deleteTweet} />
+          {tweets && tweets.map((tweet: Tweet, index: React.Key | null | undefined) => (
+            <Tweet key={index} email={user.user.Email} content={tweet.Content} FirstName={user.user.FirstName} LastName={user.user.LastName} TweetId={tweet.Id} onDelete={deleteTweet} />
           ))}
+
 
         </div>
 

@@ -118,11 +118,11 @@ const ProfileRightBar = () => {
 
     useEffect(() => {
         retrievefollowing()
-    }, [userEmail,followingPage,user.user])
+    }, [userEmail,followingPage])
 
     useEffect(() => {
         retrievefollowers()
-    }, [userEmail,user.user])
+    }, [userEmail])
 
     const handleUnfollow = async (userId: string) => {
         const postData = {
