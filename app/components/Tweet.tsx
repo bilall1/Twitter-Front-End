@@ -57,17 +57,27 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
     const [isEditing, setIsEditing] = useState(false);
     const [editedContent, setEditedContent] = useState(content);
 
+    //Pagination
+    const [page, setPage] = useState(1);
+
 
 
     const loadComments = async () => {
 
         const postData = {
-            "TweetId": TweetId
+            "TweetId": TweetId,
+            "Page": page
         }
 
         try {
+            // const response = await apiClient.post('/showCommentsOnTweet', postData);
+            // setCommentOnTweets(response.data.Comments)
+
             const response = await apiClient.post('/showCommentsOnTweet', postData);
-            setCommentOnTweets(response.data.Comments)
+
+            if (response.data.Comments) {
+                setCommentOnTweets(previousComments => [...response.data.Comments, ...(previousComments || [])]);
+            }
 
 
         } catch (error) {
@@ -78,13 +88,12 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
     }
     useEffect(() => {
         loadComments()
-    }, [reloadComment])
+    }, [reloadComment,page])
 
 
     const handleComment = async (e: any) => {
-
-        loadComments()
-
+        setPage(1);
+        console.log("Page:",page)
         setShowCommentBox(!showCommentBox);
     }
 
@@ -103,6 +112,7 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
 
         try {
             const response = await apiClient.post('/submitComment', postData);
+            
 
             if (reloadComment == 0) {
                 setReloadComments(1)
@@ -241,7 +251,12 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
 
     function handleDelete() {
         onDelete(TweetId);
-      }
+    }
+
+    const handlePrevious = () => {
+        setPage(oldPage => oldPage + 1);
+
+    }
 
 
     return (
@@ -336,9 +351,13 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
             {showCommentBox &&
 
                 <div>
+                    <button className="ml-2 underline" onClick={handlePrevious}>
+                        Load previous..
+                    </button>
 
                     <div>
                         {commentOnTweets && commentOnTweets.map((comment: TweetComments, index: React.Key | null | undefined) => (
+
 
                             <div className='py-2 pl-5 bg-blue-50' key={index}>
 
