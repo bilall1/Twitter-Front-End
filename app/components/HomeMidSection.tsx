@@ -121,7 +121,7 @@ const homeMidSection = () => {
 
     }
     return (
-        <div className='w-full h-full flex flex-col pt-12'>
+        <div className='w-full h-full flex flex-col pt-16'>
 
             <div>
                 <h1 className="text-3xl text-gray-900 dark:text-white px-2">Twitter </h1>
