@@ -70,8 +70,8 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
         }
 
         try {
-            // const response = await apiClient.post('/showCommentsOnTweet', postData);
-            // setCommentOnTweets(response.data.Comments)
+
+           
 
             const response = await apiClient.post('/showCommentsOnTweet', postData);
 
@@ -88,12 +88,10 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
     }
     useEffect(() => {
         loadComments()
-    }, [reloadComment,page])
+    }, [page]) //reloadComment
 
 
     const handleComment = async (e: any) => {
-        setPage(1);
-        console.log("Page:",page)
         setShowCommentBox(!showCommentBox);
     }
 
@@ -112,13 +110,18 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
 
         try {
             const response = await apiClient.post('/submitComment', postData);
-            
 
-            if (reloadComment == 0) {
-                setReloadComments(1)
-            } else {
-                setReloadComments(0)
-            }
+        //     const newComment= {
+        //         Id: 0,
+        //         TweetId: TweetId,
+        //         UserId: user.user.Id,
+        //         TweetComment: commentBoxValue,
+        //         Email: user.user.Email,
+        //         FirstName: user.user.FirstName,
+        //         LastName: user.user.LastName
+          
+        //     }
+        //    setCommentOnTweets(previousComments => [...(previousComments || []), newComment]);
 
         } catch (error) {
             console.error('Error while submitting comment');
@@ -255,7 +258,6 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
 
     const handlePrevious = () => {
         setPage(oldPage => oldPage + 1);
-
     }
 
 
