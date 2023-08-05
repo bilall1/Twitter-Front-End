@@ -106,13 +106,8 @@ const homeMidSection = () => {
                 : []
             ));
 
-            if(reloading == 0){
-                setReloading(1)
-            }
-            else{
-                setReloading(0)
-            }
-            
+
+      
 
         } catch (error) {
             console.error('Error while retrieving home tweets:');

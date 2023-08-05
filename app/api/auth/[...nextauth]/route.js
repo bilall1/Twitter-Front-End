@@ -57,7 +57,7 @@ const handler = NextAuth({
                         "ThirdParty": true,
                         "FirstName":user.profile.given_name,
                         "LastName":user.profile.family_name,
-                        "D_o_b": "2222-2-22"
+                        "D_o_b": ""
                     };
 
 
