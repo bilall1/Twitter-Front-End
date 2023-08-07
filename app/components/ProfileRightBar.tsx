@@ -22,6 +22,8 @@ const ProfileRightBar = () => {
         FirstName: string
         LastName: string
         Followed: boolean
+        Profile : string
+
     }
 
     const { data: session } = useSession({
@@ -160,7 +162,7 @@ const ProfileRightBar = () => {
                         {followings && followings.map((user: User, index: React.Key | null | undefined) => (
                             <div className='pl-3 pt-3 flex-col py-2' key={index}>
                                 <div className='flex'>
-                                    <Image className="lg:h-10 lg:w-10 h-6 w-6 rounded-full h mr-2" src={dummy} alt="" />
+                                {user.Profile ? <Image className='lg:h-12 lg:w-12 h-6 w-6 rounded-full h mr-2' src={user.Profile} alt="Profile" width={100} height={100} /> : <Image className='lg:h-12 lg:w-12 h-6 w-6 rounded-full h mr-2' src={dummy} alt="User avatar"  />}
                                     <span className="hidden md:inline-block lg:text-2xl">{user.FirstName} {user.LastName}</span>
                                 </div>
 
@@ -195,7 +197,7 @@ const ProfileRightBar = () => {
                         {followers && followers.map((user: User, index: React.Key | null | undefined) => (
                             <div className='pl-3 pt-3 flex-col py-2' key={index}>
                                 <div className='flex'>
-                                    <Image className="lg:h-10 lg:w-10 h-6 w-6 rounded-full h mr-2" src={dummy} alt="" />
+                                {user.Profile ? <Image className='lg:h-12 lg:w-12 h-6 w-6 rounded-full h mr-2' src={user.Profile} alt="Profile" width={100} height={100} /> : <Image className='lg:h-12 lg:w-12 h-6 w-6 rounded-full h mr-2' src={dummy} alt="User avatar"  />}
                                     <span className="hidden md:inline-block lg:text-2xl">{user.FirstName} {user.LastName}</span>
                                 </div>
 

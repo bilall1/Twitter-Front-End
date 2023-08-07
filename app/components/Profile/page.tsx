@@ -15,12 +15,22 @@ import { FiSave } from 'react-icons/fi';
 import { fetchUsers } from '@/features/user/userSlice'
 import { createKey } from 'next/dist/shared/lib/router/router'
 
+import { SetStateAction } from "react";
+import { storage } from "../../firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ImageResponse } from "next/server";
+import dummy from "../../assets/dummy.png"
+
 
 const Profile = () => {
+
+
 
   //Redux store 
   const user = useAppSelector(state => state.user)
   const dispatch = useAppDispatch()
+
+  console.log(user.user)
 
   const [page, setPage] = useState(1);
 
@@ -33,6 +43,9 @@ const Profile = () => {
 
   const [tweets, setTweets] = useState<Tweet[] | null>(null);
   const [reloading, setReloading] = useState(0);
+
+  const [profileEditing, setProfileEditing] = useState(false)
+  const [showInput, setShowInput] = useState(false)
 
 
   let date;
@@ -57,6 +70,90 @@ const Profile = () => {
 
     // Add any other fields you want the user to be able to edit
   });
+
+
+
+  //Profile Upload
+
+  const [image, setImage] = useState(null);
+  const [url, setUrl] = useState<string | null>(null);
+
+
+  const handleImageChange = (e: any) => {
+    if (e.target.files[0]) {
+      setImage(e.target.files[0]);
+      setProfileEditing(!profileEditing)
+      setShowInput(!showInput)
+    }
+  };
+
+  const handleProfileSubmit = async () => {
+
+    if (image) {
+      const imageRef = ref(storage, "profile/" + user.user.Id);
+
+      uploadBytes(imageRef, image)
+        .then(() => {
+          getDownloadURL(imageRef)
+            .then(async (url) => {
+              console.log('url: ', url)
+              if (url) {
+                setUrl(url);
+
+                const postData={
+                  "Id":user.user.Id,
+                  "Link":url
+                }
+            
+                try {
+                  const response = await apiClient.post('/addProfilePicture', postData);
+                  console.log('postData: ', postData)
+                  dispatch(fetchUsers(userEmail))
+                }
+                catch(error){
+                  console.error("Cant submit profile in data base")
+            
+                }
+              }
+            })
+            .catch((error: { message: any; }) => {
+              console.log(error.message, "error getting the image url");
+            });
+          setImage(null);
+        })
+        .catch((error: { message: any; }) => {
+          console.log(error.message);
+        });
+
+
+
+    }
+
+    
+
+    setProfileEditing(!profileEditing)
+  };
+
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+  // useEffect(() => {
+  //   // Replace 'userId' with the actual ID of the user whose profile you want to display
+  //   const userId = user.user.Id;
+  //   const imageRef = ref(storage, `profile/${userId}`);
+
+  //   getDownloadURL(imageRef)
+  //     .then((url) => {
+  //       if (url) {
+  //         setImageUrl(url);
+  //       }
+
+  //     })
+  //     .catch((error) => {
+  //       console.log("Error getting image URL: ", error);
+  //     });
+  // }, []);
+  
+
 
   const handleInputChange = (event: { target: { name: any; value: any } }) => {
     console.log(event.target.name)
@@ -140,13 +237,13 @@ const Profile = () => {
           : []
       ));
 
-      if(reloading == 0){
+      if (reloading == 0) {
         setReloading(1)
-    }
-    else{
+      }
+      else {
         setReloading(0)
-    }
-  
+      }
+
 
 
     } catch (error) {
@@ -168,7 +265,36 @@ const Profile = () => {
 
         <div className='flex'>
           <div className="flex flex-col space-y-2 pt-6">
-            <Image src={random1} alt="User avatar" className="w-24 h-24 rounded-full" />
+
+            <div className='flex flex-col'>
+              {profileEditing ?
+
+                <button className='ml-48' onClick={handleProfileSubmit}>
+                  <FiSave></FiSave>
+                </button>
+
+                :
+                <button className='ml-48' onClick={() => {setShowInput(!showInput)}}>
+                  <FiEdit2></FiEdit2>
+                </button>
+
+              }
+              {user.user.Profile ? <Image className='rounded-full' src={user.user.Profile} alt="Profile" width={180} height={180} /> : <Image src={dummy} alt="User avatar" className="w-24 h-24 rounded-full" />}
+
+
+            </div>
+
+            {showInput ?
+              <div>
+                <input type="file" onChange={handleImageChange} />
+              </div>
+              :
+              <p></p>
+
+
+            }
+
+
             <h2 className="text-2xl font-bold">{editing ? <input type="text" name="FirstName" value={formData.FirstName} onChange={handleInputChange} className="border rounded px-2 py-1" /> : user.user.FirstName}</h2>
             <h2 className="text-2xl font-bold">{editing ? <input type="text" name="LastName" value={formData.LastName} onChange={handleInputChange} className="border rounded px-2 py-1" /> : user.user.LastName}</h2>
             <p className="text-lg text-gray-600"> {user.user.Email} </p>
@@ -199,7 +325,7 @@ const Profile = () => {
             <button onClick={() => {
               setEditing(true);
             }}
-              className='text-2xl'
+              className='text-xl'
 
             >
               <FiEdit2></FiEdit2>
@@ -215,7 +341,7 @@ const Profile = () => {
 
         <div className="py-4 px-2 flex flex-col " >
           {tweets && tweets.map((tweet: Tweet, index: React.Key | null | undefined) => (
-            <Tweet key={index} email={user.user.Email} content={tweet.Content} FirstName={user.user.FirstName} LastName={user.user.LastName} TweetId={tweet.Id} onDelete={deleteTweet} />
+            <Tweet key={index} email={user.user.Email} content={tweet.Content} FirstName={user.user.FirstName} LastName={user.user.LastName} TweetId={tweet.Id} Profile={user.user.Profile} onDelete={deleteTweet} />
           ))}
 
 
