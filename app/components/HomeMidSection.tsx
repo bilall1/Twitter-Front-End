@@ -25,6 +25,7 @@ const homeMidSection = () => {
         Email: string;
         FirstName: string;
         LastName: string;
+        Profile: string;
         // include other properties of a tweet as necessary
     }
 
@@ -143,7 +144,7 @@ const homeMidSection = () => {
             <div className="py-4 px-2">
                 {tweets && tweets.map((tweet: Tweet, index: React.Key | null | undefined) => (
                     <div className='pb-2' key={index}>
-                        <Tweet email={tweet.Email} content={tweet.Content} FirstName={tweet.FirstName} LastName={tweet.LastName} TweetId={tweet.Id} onDelete={deleteTweet}/>
+                        <Tweet email={tweet.Email} content={tweet.Content} FirstName={tweet.FirstName} LastName={tweet.LastName} TweetId={tweet.Id} Profile={tweet.Profile} onDelete={deleteTweet}/>
                     </div>
                 ))}
                 {loading && <p>Loading...</p>}

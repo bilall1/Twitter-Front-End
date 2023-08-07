@@ -14,10 +14,11 @@ interface ChildProps {
     content: string;
     FirstName: string;
     LastName: string;
+    Profile: string;
     onDelete: (id: number) => void
 }
 
-const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, TweetId, onDelete }) => {
+const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, TweetId,Profile, onDelete }) => {
 
     //Redux store 
     const user = useAppSelector(state => state.user)
@@ -57,8 +58,10 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
     const [isEditing, setIsEditing] = useState(false);
     const [editedContent, setEditedContent] = useState(content);
 
-    //Pagination
-    const [page, setPage] = useState(1);
+    //Limit
+    const [limit, setLimit] = useState(3);
+    //Three comments per tweet
+
 
 
 
@@ -66,17 +69,15 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
 
         const postData = {
             "TweetId": TweetId,
-            "Page": page
+            "Limit": limit
         }
 
         try {
 
-           
-
             const response = await apiClient.post('/showCommentsOnTweet', postData);
 
             if (response.data.Comments) {
-                setCommentOnTweets(previousComments => [...response.data.Comments, ...(previousComments || [])]);
+                setCommentOnTweets(response.data.Comments);
             }
 
 
@@ -88,7 +89,7 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
     }
     useEffect(() => {
         loadComments()
-    }, [page]) //reloadComment
+    }, [limit]) //reloadComment
 
 
     const handleComment = async (e: any) => {
@@ -110,24 +111,10 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
 
         try {
             const response = await apiClient.post('/submitComment', postData);
-
-        //     const newComment= {
-        //         Id: 0,
-        //         TweetId: TweetId,
-        //         UserId: user.user.Id,
-        //         TweetComment: commentBoxValue,
-        //         Email: user.user.Email,
-        //         FirstName: user.user.FirstName,
-        //         LastName: user.user.LastName
-          
-        //     }
-        //    setCommentOnTweets(previousComments => [...(previousComments || []), newComment]);
-
         } catch (error) {
             console.error('Error while submitting comment');
         }
         setCommentBoxValue('');
-
     }
 
 
@@ -257,7 +244,7 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
     }
 
     const handlePrevious = () => {
-        setPage(oldPage => oldPage + 1);
+        setLimit(oldLimit => oldLimit + 3);
     }
 
 
@@ -266,7 +253,10 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
             <div className=" flex py-3 justify-between">
 
                 <div className='flex px-2 ' >
-                    <Image className="h-16 w-16 mr-2 rounded-full h" src={dummy} alt="" />
+                
+                {Profile ? <Image className='rounded-full h-16 w-16 mr-2' src={Profile} alt="Profile" width={100} height={100} /> : <Image src={dummy} alt="User avatar" className="w-16 h-16 rounded-full mr-2" />}
+
+                    {/* <Image className="h-16 w-16 mr-2 rounded-full h" src={dummy} alt="" /> */}
 
                     <div className='flex-col px-1 pt-1'>
                         <h2 className="text-2xl ">{FirstName} {LastName}</h2>

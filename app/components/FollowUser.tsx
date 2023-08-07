@@ -15,6 +15,7 @@ export default function FollowList() {
         FirstName: string
         LastName: string
         Followed: boolean
+        Profile : string
         // include other properties of a tweet as necessary
     }
 
@@ -106,15 +107,15 @@ export default function FollowList() {
     return (
         //style={{ maxHeight: "290 px", overflowY: "scroll" }}
         <div className='mr-5'  >
-            {toFollow && toFollow.people && toFollow.people.map((people: { Followed: boolean, Id: string, FirstName: string, LastName: string }, index: React.Key | null | undefined) => (
+            {toFollow && toFollow.people && toFollow.people.map((people: { Followed: boolean, Id: string, FirstName: string, LastName: string,Profile:string }, index: React.Key | null | undefined) => (
                 <div className='pl-3 pt-3 flex-col py-2' key={index}>
                     <div className='flex'>
-                        <Image className="lg:h-10 lg:w-10 h-6 w-6 rounded-full h mr-2" src={dummy} alt="" />
+                    {people.Profile ? <Image className='lg:h-12 lg:w-12 h-6 w-6 rounded-full h mr-2' src={people.Profile} alt="Profile" width={100} height={100} /> : <Image className='lg:h-12 lg:w-12 h-6 w-6 rounded-full h mr-2' src={dummy} alt="User avatar"  />}
                         <span className="hidden md:inline-block lg:text-2xl">{people.FirstName} {people.LastName}</span>
                     </div>
 
                     <div>
-                        <button className="self-start px-2 ml-12 py-1 text-white bg-blue-400 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                        <button className="self-start px-2 ml-14 py-1 text-white bg-blue-400 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                             onClick={() => handleFollow(people.Id)}
                         >
                             {people.Followed ? 'Followed' : 'Follow'}

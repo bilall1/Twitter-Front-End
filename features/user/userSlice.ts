@@ -4,13 +4,14 @@ import apiClient from '@/app/api/api'
 
 type User = {
   [x: string]: any
-	Id     :    number
-	Email   :   string
-	Password :  string
-	ThirdParty : boolean
-	D_o_b     : string
-	FirstName : string
-	LastName  : string
+  Id: number
+  Email: string
+  Password: string
+  ThirdParty: boolean
+  D_o_b: string
+  FirstName: string
+  LastName: string
+  Profile: string
 }
 
 
@@ -22,13 +23,14 @@ type InitialState = {
 const initialState: InitialState = {
   loading: false,
   user: {
-    Id     :    0,
-    Email   :   "",
-    Password :  "",
-    ThirdParty : false,
-    D_o_b     : "",
-    FirstName : "",
-    LastName  : "",
+    Id: 0,
+    Email: "",
+    Password: "",
+    ThirdParty: false,
+    D_o_b: "",
+    FirstName: "",
+    LastName: "",
+    Profile : ""
 
   },
   error: ''
@@ -36,9 +38,9 @@ const initialState: InitialState = {
 
 export const fetchUsers = createAsyncThunk('user/fetchUsers', async (email: string) => {
 
-    const postData = {
-        "Email": email
-    }
+  const postData = {
+    "Email": email
+  }
 
   return apiClient
     .post('/getUser', postData)
@@ -46,7 +48,7 @@ export const fetchUsers = createAsyncThunk('user/fetchUsers', async (email: stri
 })
 
 const userSlice = createSlice({
-  name: 'user', 
+  name: 'user',
   initialState,
   reducers: {},
   extraReducers: builder => {
@@ -64,16 +66,17 @@ const userSlice = createSlice({
     builder.addCase(fetchUsers.rejected, (state, action) => {
       state.loading = false
       state.user = {
-        Id     :    0,
-        Email   :   "",
-        Password :  "",
-        ThirdParty : false,
-        D_o_b     : "",
-        FirstName : "",
-        LastName  : "",
-    
+        Id: 0,
+        Email: "",
+        Password: "",
+        ThirdParty: false,
+        D_o_b: "",
+        FirstName: "",
+        LastName: "",
+        Profile : ""
+
       },
-      state.error = action.error.message || 'Something went wrong'
+        state.error = action.error.message || 'Something went wrong'
     })
   }
 })
