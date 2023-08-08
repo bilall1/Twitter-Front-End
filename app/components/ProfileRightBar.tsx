@@ -17,6 +17,11 @@ const ProfileRightBar = () => {
     const [followings, setFollowings] = useState<User[] | null>(null);
     const [followers, setFollowers] = useState<User[] | null>(null);
 
+    const [totalFollowers,setTotalFollowers]= useState(0)
+    const [totalFollowings,setTotalFollowings]= useState(0)
+
+    const [reloading,setReloading]= useState(false)
+
     interface User {
         Id: string
         FirstName: string
@@ -97,6 +102,41 @@ const ProfileRightBar = () => {
         }
 
     }
+
+
+    const getCountofFollowers = async () => {
+
+        const postData = {
+            "Id": user.user.Id
+        }
+        try {
+            const response = await apiClient.post('/getTotalFollowers', postData);
+            setTotalFollowers(response.data.Count)
+            
+        } catch (error) {
+            console.error('Error while getting followers count');
+        }
+
+    }
+    const getCountofFollowings = async () => {
+
+        const postData = {
+            "Id": user.user.Id
+        }
+        try {
+            const response = await apiClient.post('/getTotalFollowings', postData);
+            setTotalFollowings(response.data.Count)
+            
+        } catch (error) {
+            console.error('Error while getting followers count');
+        }
+
+    }
+
+
+
+
+
     const divRef1 = useRef<HTMLDivElement | null>(null);
 
     const handleScrollForFollower = (event: Event) => {
@@ -126,6 +166,14 @@ const ProfileRightBar = () => {
         retrievefollowers()
     }, [userEmail])
 
+    useEffect(() => {
+        getCountofFollowers()
+        getCountofFollowings()
+     
+    }, [reloading])
+
+    
+
     const handleUnfollow = async (userId: string) => {
         const postData = {
             "UserId":user.user.Id,
@@ -136,6 +184,9 @@ const ProfileRightBar = () => {
 
             if (response.status === 200) { 
                 setFollowings(prevFollowings => prevFollowings?.filter(user => user.Id !== userId) || null);
+
+                setReloading(!reloading)
+
             } else {
                 console.error('Error while unfollowing user');
             }
@@ -154,7 +205,7 @@ const ProfileRightBar = () => {
                 <div> 
 
                     <div className='border-b-2 border-gray-500 opacity-50 pb-4'>
-                        <span className='text-2xl '> Following</span>
+                        <span className='text-2xl '> {totalFollowings} Following</span>
                     </div>
 
                     <div className='pt-2' ref={divRef} style={{ height: '300px', overflow: 'auto', scrollbarWidth: 'none' }}>
@@ -163,14 +214,14 @@ const ProfileRightBar = () => {
                             <div className='pl-3 pt-3 flex-col py-2' key={index}>
                                 <div className='flex'>
                                 {user.Profile ? <Image className='lg:h-12 lg:w-12 h-6 w-6 rounded-full h mr-2' src={user.Profile} alt="Profile" width={100} height={100} /> : <Image className='lg:h-12 lg:w-12 h-6 w-6 rounded-full h mr-2' src={dummy} alt="User avatar"  />}
-                                    <span className="hidden md:inline-block lg:text-2xl">{user.FirstName} {user.LastName}</span>
+                                    <span className="hidden md:inline-block lg:text-2xl mt-1">{user.FirstName} {user.LastName}</span>
                                 </div>
 
                                 <div>
-                                    <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 ml-10 px-2 rounded-full"
+                                    <button className="bg-red-500 hover:bg-red-600 text-white py-2 ml-14 px-2 rounded-full"
                                         onClick={() => handleUnfollow(user.Id)}
                                     >
-                                        {user.Followed ? 'Removed' : 'Unfollow'}
+                                        Unfollow
                                     </button>
                                 </div>
 
@@ -187,7 +238,7 @@ const ProfileRightBar = () => {
 
 
                     <div className='border-b-2 border-gray-500 opacity-50 pb-4 mt-8'>
-                        <span className='text-2xl '> Followers</span>
+                        <span className='text-2xl '>{totalFollowers} Followers</span>
 
                         {/* Followers route created at backend. Call and map simple  */}
                     </div>

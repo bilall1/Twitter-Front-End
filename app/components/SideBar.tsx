@@ -25,18 +25,18 @@ export default function SideBar() {
 
                     <div className='flex flex-col'>
 
-                        <Link href="/" className='pl-3 pt-5 flex'>
+                        <Link href="/" className='pl-3 pt-5 flex transform transition-all duration-500 ease-in-out hover:scale-105 '>
                             <Image className="lg:h-8 lg:w-8 h-6 w-6 mr-2" src={home} alt="" />
                             <span className="hidden md:inline-block lg:text-2xl">Home</span>
                         </Link>
 
 
-                        <Link href="/" className='pl-3 pt-5 flex'>
+                        <Link href="/" className='pl-3 pt-5 flex transform transition-all duration-500 ease-in-out hover:scale-105'>
                             <Image className="lg:h-8 lg:w-8 h-6 w-6 mr-2" src={message} alt="" />
                             <span className="hidden md:inline-block lg:text-2xl">Messages</span>
                         </Link>
 
-                        <button onClick={() => signOut()} className='pl-3 pt-5 flex'>
+                        <button onClick={() => signOut()} className='pl-3 pt-5 flex transform transition-all duration-500 ease-in-out hover:scale-105'>
                             <Image className="lg:h-7 lg:w-7 h-6 w-6 mr-2" src={signout} alt="" />
                             <span className="hidden md:inline-block lg:text-2xl">Sign Out</span>
                             </button>
@@ -48,7 +48,7 @@ export default function SideBar() {
                     <div>
 
                         <div className='pl-3 pt-3 flex flex-col'>
-                            <Link href="../components/Profile " className='flex pb-2'>
+                            <Link href="../components/Profile " className='pb-2 flex transform transition-all duration-500 ease-in-out hover:scale-105'>
                                 <Image className="lg:h-9 lg:w-9 h-6 w-6 mr-2" src={profile} alt="" />
                                 <span className="hidden md:inline-block lg:text-2xl">Profile</span>
 
