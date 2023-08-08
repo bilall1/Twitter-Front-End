@@ -12,7 +12,7 @@ const homeMidSection = () => {
 
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
-    const [reloading, setReloading] = useState(0);
+    const [reloading, setReloading] = useState(false);
 
 
     const { data: session } = useSession({
@@ -34,7 +34,6 @@ const homeMidSection = () => {
 
 
     const retrieveTweets = async () => {
-        //console.log(user)
         setLoading(true);
         const postData = {
             "Id": user.user.Id,
@@ -43,15 +42,17 @@ const homeMidSection = () => {
         try {
             const response = await apiClient.post('/getFollowersTweet', postData);
             setTweets(oldTweets => (oldTweets ? [...oldTweets, ...response.data.Tweets] : response.data.Tweets));
+            reloading
 
         } catch (error) {
             console.error('Error while retrieving home tweets:');
         }
         setLoading(false);
+        setReloading(false);
     }
 
     useEffect(() => {
-        if(userEmail!="invalid" && user.user.Email!=''){
+        if (userEmail != "invalid" && user.user.Email != '') {
             retrieveTweets()
         }
     }, [userEmail, page, user.user.Email])
@@ -68,6 +69,11 @@ const homeMidSection = () => {
             window.removeEventListener('scroll', handleScroll);
         };
     }, []);
+
+    useEffect(() => {
+        setReloading(false)
+        
+    }, [tweets]);
 
 
 
@@ -89,13 +95,31 @@ const homeMidSection = () => {
             "Content": content
         }
 
-        const response = await apiClient.post('/postTweet', postData);
+        try {
+            const response = await apiClient.post('/postTweet', postData);
+
+            var object: Tweet = {
+                Id: response.data.Tweet.Id,
+                Content: response.data.Tweet.Content,
+                Email: user.user.Email,
+                FirstName: user.user.FirstName,
+                LastName: user.user.LastName,
+                Profile: user.user.Profile,
+
+            }
+            setTweets(oldTweets => (oldTweets ? [object, ...oldTweets] : null));
+            setReloading(true)
+
+        } catch (error) {
+            console.error("Error posting content")
+        }
+
 
     };
-    const deleteTweet= async  (id: number)  => {
+    const deleteTweet = async (id: number) => {
 
-        const postData ={
-            "TweetId":id
+        const postData = {
+            "TweetId": id
         }
 
         try {
@@ -106,9 +130,10 @@ const homeMidSection = () => {
                 ? oldTweets.filter(tweet => tweet.Id !== id)
                 : []
             ));
+            setReloading(true)
+            
 
 
-      
 
         } catch (error) {
             console.error('Error while retrieving home tweets:');
@@ -117,6 +142,7 @@ const homeMidSection = () => {
 
     }
     return (
+        
         <div className='w-full h-full flex flex-col pt-16'>
 
             <div>
@@ -142,12 +168,16 @@ const homeMidSection = () => {
             </div>
 
             <div className="py-4 px-2">
-                {tweets && tweets.map((tweet: Tweet, index: React.Key | null | undefined) => (
-                    <div className='pb-2' key={index}>
-                        <Tweet email={tweet.Email} content={tweet.Content} FirstName={tweet.FirstName} LastName={tweet.LastName} TweetId={tweet.Id} Profile={tweet.Profile} onDelete={deleteTweet}/>
-                    </div>
-                ))}
-                {loading && <p>Loading...</p>}
+                {!reloading ? <div>
+                    {tweets && tweets.map((tweet: Tweet, index: React.Key | null | undefined) => (
+                        <div className='pb-2' key={index}>
+                            <Tweet email={tweet.Email} content={tweet.Content} FirstName={tweet.FirstName} LastName={tweet.LastName} TweetId={tweet.Id} Profile={tweet.Profile} onDelete={deleteTweet} />
+                        </div>
+                    ))}
+                    {loading && <p>Loading...</p>}
+                </div>
+                 : <div>Loading...</div>}
+                
 
             </div>
 
@@ -156,7 +186,7 @@ const homeMidSection = () => {
         </button> */}
         </div>
 
-    )
+     )
 }
 
 export default homeMidSection

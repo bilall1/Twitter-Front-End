@@ -7,6 +7,7 @@ import dummy from "../assets/dummy.png"
 import { useAppSelector } from '../hooks'
 import apiClient from '../api/api'
 import heartFilled from "../assets/heart-filled.png"
+import done from "../assets/done.png"
 
 interface ChildProps {
     TweetId: number;
@@ -18,7 +19,7 @@ interface ChildProps {
     onDelete: (id: number) => void
 }
 
-const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, TweetId,Profile, onDelete }) => {
+const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, TweetId, Profile, onDelete }) => {
 
     //Redux store 
     const user = useAppSelector(state => state.user)
@@ -31,11 +32,12 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
         Email: string
         FirstName: string
         LastName: string
+        Profile : string
     }
 
     //Comments
     const [commentOnTweets, setCommentOnTweets] = useState<TweetComments[] | null>(null);
-    const [reloadTweets, setReloadTweets] = useState(0)
+    const [reload, setReload] = useState(false)
     const [contentOfTweet, setContentOfTweet] = useState(content);
 
 
@@ -63,8 +65,6 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
     //Three comments per tweet
 
 
-
-
     const loadComments = async () => {
 
         const postData = {
@@ -89,7 +89,7 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
     }
     useEffect(() => {
         loadComments()
-    }, [limit]) //reloadComment
+    }, [limit,reload]) //reloadComment
 
 
     const handleComment = async (e: any) => {
@@ -115,6 +115,8 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
             console.error('Error while submitting comment');
         }
         setCommentBoxValue('');
+
+        setReload(!reload);
     }
 
 
@@ -240,6 +242,7 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
     }
 
     function handleDelete() {
+        setIsOpen(!isOpen);
         onDelete(TweetId);
     }
 
@@ -253,8 +256,8 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
             <div className=" flex py-3 justify-between">
 
                 <div className='flex px-2 ' >
-                
-                {Profile ? <Image className='rounded-full h-16 w-16 mr-2' src={Profile} alt="Profile" width={100} height={100} /> : <Image src={dummy} alt="User avatar" className="w-16 h-16 rounded-full mr-2" />}
+
+                    {Profile ? <Image className='rounded-full h-16 w-16 mr-2' src={Profile} alt="Profile" width={100} height={100} /> : <Image src={dummy} alt="User avatar" className="w-16 h-16 rounded-full mr-2" />}
 
                     {/* <Image className="h-16 w-16 mr-2 rounded-full h" src={dummy} alt="" /> */}
 
@@ -343,45 +346,48 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
             {showCommentBox &&
 
                 <div>
-                    <button className="ml-2 underline" onClick={handlePrevious}>
-                        Load previous..
-                    </button>
+                    <div className='mt-2 py-2 border-t-2 border-gray-500  bg-blue-50'>
+
+
+                        <form onSubmit={handleCommentSubmit} className='flex'>
+
+                            <textarea value={commentBoxValue} onChange={handleCommentChange}  className="w-full h-10 px-1 py-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder='Type your comment' />
+
+                            <button className="" type="submit">
+                                <Image src={done} className='h-10 w-10' alt= ""/>
+                            </button>
+                        </form>
+
+                    </div>
 
                     <div>
                         {commentOnTweets && commentOnTweets.map((comment: TweetComments, index: React.Key | null | undefined) => (
 
 
-                            <div className='py-2 pl-5 bg-blue-50' key={index}>
+                            <div className='py-2 pl-2 bg-blue-50' key={index}>
 
                                 <div className='flex'>
 
                                     <div>
 
                                     </div>
-                                    <Image className="lg:h-5 lg:w-5 h-3 w-3 rounded-full h mr-2" src={dummy} alt="" />
+                                    {comment.Profile ? <Image className='lg:h-8 lg:w-8 h-3 w-3 rounded-full h mr-2' src={comment.Profile} alt="Profile" width={100} height={100} /> : <Image src={dummy} alt="User avatar" className="lg:h-8 lg:w-8 h-3 w-3 rounded-full h mr-2" />}
+                                    {/* <Image className="lg:h-5 lg:w-5 h-3 w-3 rounded-full h mr-2" src={dummy} alt="" /> */}
                                     <span className="hidden md:inline-block lg:text-xl">{comment.FirstName} {comment.LastName}</span>
                                 </div>
 
-                                <div>
-                                    <span>{comment.TweetComment}</span>
+                                <div >
+                                    <span className='ml-10'>{comment.TweetComment}</span>
                                 </div>
 
                             </div>
                         ))}
                     </div>
 
+                    <button className="ml-2 w-full underline bg-blue-50 flex justify-start" onClick={handlePrevious}>
+                        Load previous..
+                    </button>
 
-                    <div className='mt-2 py-2 border-t-2 border-gray-500 '>
-
-
-                        <form onSubmit={handleCommentSubmit}>
-
-                            <textarea value={commentBoxValue} onChange={handleCommentChange} className="w-full px-2 py-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder='Type your comment' />
-
-                            <button className=" mt-1 self-start px-1  py-1 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" type="submit">Comment</button>
-                        </form>
-
-                    </div>
 
                 </div>
 

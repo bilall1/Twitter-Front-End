@@ -42,7 +42,7 @@ const Profile = () => {
 
 
   const [tweets, setTweets] = useState<Tweet[] | null>(null);
-  const [reloading, setReloading] = useState(0);
+  const [reloading, setReloading] = useState(false);
 
   const [profileEditing, setProfileEditing] = useState(false)
   const [showInput, setShowInput] = useState(false)
@@ -100,19 +100,19 @@ const Profile = () => {
               if (url) {
                 setUrl(url);
 
-                const postData={
-                  "Id":user.user.Id,
-                  "Link":url
+                const postData = {
+                  "Id": user.user.Id,
+                  "Link": url
                 }
-            
+
                 try {
                   const response = await apiClient.post('/addProfilePicture', postData);
                   console.log('postData: ', postData)
                   dispatch(fetchUsers(userEmail))
                 }
-                catch(error){
+                catch (error) {
                   console.error("Cant submit profile in data base")
-            
+
                 }
               }
             })
@@ -129,30 +129,13 @@ const Profile = () => {
 
     }
 
-    
+
 
     setProfileEditing(!profileEditing)
   };
 
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
-  // useEffect(() => {
-  //   // Replace 'userId' with the actual ID of the user whose profile you want to display
-  //   const userId = user.user.Id;
-  //   const imageRef = ref(storage, `profile/${userId}`);
-
-  //   getDownloadURL(imageRef)
-  //     .then((url) => {
-  //       if (url) {
-  //         setImageUrl(url);
-  //       }
-
-  //     })
-  //     .catch((error) => {
-  //       console.log("Error getting image URL: ", error);
-  //     });
-  // }, []);
-  
 
 
   const handleInputChange = (event: { target: { name: any; value: any } }) => {
@@ -206,7 +189,7 @@ const Profile = () => {
 
   useEffect(() => {
     retrieveTweets()
-  }, [userEmail, page, reloading])
+  }, [userEmail, page])
 
 
 
@@ -223,6 +206,13 @@ const Profile = () => {
     };
   }, []);
 
+  useEffect(() => {
+    setReloading(false)
+
+  }, [tweets]);
+
+
+
   const deleteTweet = async (id: number) => {
     const postData = {
       "TweetId": id
@@ -236,15 +226,7 @@ const Profile = () => {
           ? oldTweets.filter(tweet => tweet.Id !== id)
           : []
       ));
-
-      if (reloading == 0) {
-        setReloading(1)
-      }
-      else {
-        setReloading(0)
-      }
-
-
+      setReloading(true)
 
     } catch (error) {
       console.error('Error while retrieving home tweets:');
@@ -274,7 +256,7 @@ const Profile = () => {
                 </button>
 
                 :
-                <button className='ml-48' onClick={() => {setShowInput(!showInput)}}>
+                <button className='ml-48' onClick={() => { setShowInput(!showInput) }}>
                   <FiEdit2></FiEdit2>
                 </button>
 
@@ -340,9 +322,14 @@ const Profile = () => {
         </div>
 
         <div className="py-4 px-2 flex flex-col " >
-          {tweets && tweets.map((tweet: Tweet, index: React.Key | null | undefined) => (
-            <Tweet key={index} email={user.user.Email} content={tweet.Content} FirstName={user.user.FirstName} LastName={user.user.LastName} TweetId={tweet.Id} Profile={user.user.Profile} onDelete={deleteTweet} />
-          ))}
+
+          {!reloading ? <div>
+            {tweets && tweets.map((tweet: Tweet, index: React.Key | null | undefined) => (
+              <Tweet key={index} email={user.user.Email} content={tweet.Content} FirstName={user.user.FirstName} LastName={user.user.LastName} TweetId={tweet.Id} Profile={user.user.Profile} onDelete={deleteTweet} />
+            ))}
+
+          </div>
+            : <div>Loading...</div>}
 
 
         </div>
