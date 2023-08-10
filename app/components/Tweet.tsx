@@ -16,10 +16,11 @@ interface ChildProps {
     FirstName: string;
     LastName: string;
     Profile: string;
+    Link: string | null;
     onDelete: (id: number) => void
 }
 
-const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, TweetId, Profile, onDelete }) => {
+const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, TweetId, Profile, Link, onDelete }) => {
 
     //Redux store 
     const user = useAppSelector(state => state.user)
@@ -32,7 +33,7 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
         Email: string
         FirstName: string
         LastName: string
-        Profile : string
+        Profile: string
     }
 
     //Comments
@@ -89,7 +90,7 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
     }
     useEffect(() => {
         loadComments()
-    }, [limit,reload]) //reloadComment
+    }, [limit, reload]) //reloadComment
 
 
     const handleComment = async (e: any) => {
@@ -257,13 +258,13 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
 
                 <div className='flex px-2 ' >
 
-                    {Profile ? <Image className='rounded-full h-16 w-16 mr-2' src={Profile} alt="Profile" width={100} height={100} /> : <Image src={dummy} alt="User avatar" className="w-16 h-16 rounded-full mr-2" />}
+                    {Profile ? <Image className='rounded-full h-12 w-12 ml-2 mt-2 ' src={Profile} alt="Profile" width={100} height={100} /> : <Image src={dummy} alt="User avatar" className="w-12 h-12 rounded-full ml-2 mt-2" />}
 
                     {/* <Image className="h-16 w-16 mr-2 rounded-full h" src={dummy} alt="" /> */}
 
-                    <div className='flex-col px-1 pt-1'>
+                    <div className='flex-col px-4 pt-1'>
                         <h2 className="text-2xl ">{FirstName} {LastName}</h2>
-                        <h2 className='text-m text-purple-700 text-opacity-50'>{email}</h2>
+                        <h2 className='text-m text-gray-600 text-opacity-60'>{email}</h2>
                     </div>
                 </div>
 
@@ -300,21 +301,42 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
                     <div>
                         {isEditing ?
 
-                            <div>
+                            <div className='py-1 px-20'>
                                 <textarea value={editedContent} onChange={handleContentChange} className="w-full px-2 py-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                 <br></br>
                                 <button className=" mt-1 self-start px-1  py-1 text-white bg-blue-400 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" onClick={handleCommentEdit}>Save</button>
+
+                                <div className='py-2'>
+                                    {Link && <img src={Link} className='rounded-3xl ' />}
+                                </div>
                             </div>
                             :
-                            <div className="py-1 px-2">
-                                <p className='text-xl'>{contentOfTweet}</p>
+                            <div className="py-1 px-20">
+                                <p className='text-lg'>{contentOfTweet}</p>
+                                <div className='py-2'>
+                                    {Link ?
+                                        <img src={Link} className='py-1 rounded-3xl' />
+                                        :
+                                        <div></div>
+                                    }
+
+                                </div>
                             </div>
                         }
 
                     </div>
                     :
-                    <div className="py-1 px-2">
-                        <p className='text-xl'>{content}</p>
+                    <div className="py-1 px-20">
+                        <p className='text-lg'>{content}</p>
+
+                        <div className='py-2'>
+                            {Link ?
+                                <img src={Link} className='py-1' />
+                                :
+                                <div></div>
+                            }
+
+                        </div>
                     </div>
             }
 
@@ -351,10 +373,10 @@ const Tweet: React.FC<ChildProps> = ({ email, content, FirstName, LastName, Twee
 
                         <form onSubmit={handleCommentSubmit} className='flex'>
 
-                            <textarea value={commentBoxValue} onChange={handleCommentChange}  className="w-full h-10 px-1 py-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder='Type your comment' />
+                            <textarea value={commentBoxValue} onChange={handleCommentChange} className="w-full h-10 px-1 py-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder='Type your comment' />
 
                             <button className="" type="submit">
-                                <Image src={done} className='h-10 w-10' alt= ""/>
+                                <Image src={done} className='h-10 w-10' alt="" />
                             </button>
                         </form>
 
