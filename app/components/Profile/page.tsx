@@ -24,19 +24,17 @@ import dummy from "../../assets/dummy.png"
 
 const Profile = () => {
 
-
-
   //Redux store 
   const user = useAppSelector(state => state.user)
   const dispatch = useAppDispatch()
 
-  console.log(user.user)
 
   const [page, setPage] = useState(1);
 
   interface Tweet {
     Id: number;
     Content: string;
+    Link : string;
     // include other properties of a tweet as necessary
   }
 
@@ -44,8 +42,15 @@ const Profile = () => {
   const [tweets, setTweets] = useState<Tweet[] | null>(null);
   const [reloading, setReloading] = useState(false);
 
+  //Profile Editing
+  const [editing, setEditing] = useState(false);
   const [profileEditing, setProfileEditing] = useState(false)
   const [showInput, setShowInput] = useState(false)
+
+  //Profile Upload
+  const [image, setImage] = useState(null);
+  const [url, setUrl] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
 
   let date;
@@ -59,8 +64,6 @@ const Profile = () => {
     formattedDate = date.toISOString().slice(0, 10);
   }
 
-
-  const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
     FirstName: user.user.FirstName,
     LastName: user.user.LastName,
@@ -71,12 +74,6 @@ const Profile = () => {
     // Add any other fields you want the user to be able to edit
   });
 
-
-
-  //Profile Upload
-
-  const [image, setImage] = useState(null);
-  const [url, setUrl] = useState<string | null>(null);
 
 
   const handleImageChange = (e: any) => {
@@ -134,7 +131,7 @@ const Profile = () => {
     setProfileEditing(!profileEditing)
   };
 
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
 
 
 
@@ -325,7 +322,7 @@ const Profile = () => {
 
           {!reloading ? <div>
             {tweets && tweets.map((tweet: Tweet, index: React.Key | null | undefined) => (
-              <Tweet key={index} email={user.user.Email} content={tweet.Content} FirstName={user.user.FirstName} LastName={user.user.LastName} TweetId={tweet.Id} Profile={user.user.Profile} onDelete={deleteTweet} />
+              <Tweet key={index} email={user.user.Email} content={tweet.Content} FirstName={user.user.FirstName} LastName={user.user.LastName} TweetId={tweet.Id} Profile={user.user.Profile} onDelete={deleteTweet} Link={tweet.Link} />
             ))}
 
           </div>
