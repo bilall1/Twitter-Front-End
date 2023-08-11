@@ -36,3 +36,10 @@ export interface TweetComments {
     LastName: string;
     Profile: string;
   }
+
+  export interface TweetInterface {
+    Id: number;
+    Content: string;
+    Link: string;
+  }
+  

@@ -110,7 +110,7 @@ export default function FollowList() {
                   />
                 ) : (
                   <Image
-                    className="lg:h-12 lg:w-12 h-6 w-6 rounded-full h mr-2"
+                    className="lg:h-12 lg:w-12 h-6 w-6 rounded-full mr-2"
                     src={dummy}
                     alt="User avatar"
                   />

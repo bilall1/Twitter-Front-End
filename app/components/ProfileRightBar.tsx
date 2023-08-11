@@ -195,7 +195,7 @@ const ProfileRightBar = () => {
                     <div className="flex">
                       {user.Profile ? (
                         <Image
-                          className="lg:h-12 lg:w-12 h-6 w-6 rounded-full h mr-2"
+                          className="lg:h-12 lg:w-12 h-6 w-6 rounded-full mr-2"
                           src={user.Profile}
                           alt="Profile"
                           width={100}
@@ -203,7 +203,7 @@ const ProfileRightBar = () => {
                         />
                       ) : (
                         <Image
-                          className="lg:h-12 lg:w-12 h-6 w-6 rounded-full h mr-2"
+                          className="lg:h-12 lg:w-12 h-6 w-6 rounded-full mr-2"
                           src={dummy}
                           alt="User avatar"
                         />
@@ -249,7 +249,7 @@ const ProfileRightBar = () => {
                     <div className="flex">
                       {user.Profile ? (
                         <Image
-                          className="lg:h-12 lg:w-12 h-6 w-6 rounded-full h mr-2"
+                          className="lg:h-12 lg:w-12 h-6 w-6 rounded-full mr-2"
                           src={user.Profile}
                           alt="Profile"
                           width={100}
@@ -257,7 +257,7 @@ const ProfileRightBar = () => {
                         />
                       ) : (
                         <Image
-                          className="lg:h-12 lg:w-12 h-6 w-6 rounded-full h mr-2"
+                          className="lg:h-12 lg:w-12 h-6 w-6 rounded-full mr-2"
                           src={dummy}
                           alt="User avatar"
                         />

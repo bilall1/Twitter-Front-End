@@ -19,8 +19,8 @@ import { FiEdit2 } from "react-icons/fi";
 import { FiSave } from "react-icons/fi";
 import dummy from "../assets/dummy.png";
 //Interfaces
-import TweetInterface from "../Interfaces/interface";
-
+import {TweetInterface} from "../Interfaces/interface";
+  
 const Profile = () => {
   //Redux store
   const user = useAppSelector((state) => state.user);
@@ -99,7 +99,6 @@ const Profile = () => {
         .then(() => {
           getDownloadURL(imageRef)
             .then(async (url) => {
-              console.log("url: ", url);
               if (url) {
                 setUrl(url);
 
@@ -113,7 +112,6 @@ const Profile = () => {
                     "/addProfilePicture",
                     postData
                   );
-                  console.log("postData: ", postData);
                   dispatch(fetchUsers(userEmail));
                 } catch (error) {
                   console.error("Cant submit profile in data base");
@@ -134,7 +132,6 @@ const Profile = () => {
   };
 
   const handleInputChange = (event: { target: { name: any; value: any } }) => {
-    console.log(event.target.name);
     setFormData({
       ...formData,
       [event.target.name]: event.target.value,
@@ -207,7 +204,7 @@ const Profile = () => {
       <div className="w-full h-full flex flex-col pt-14 ">
         <div>
           <h1 className="text-3xl text-gray-900 dark:text-white px-2">
-            Profile{" "}
+            Profile
           </h1>
         </div>
 
@@ -232,7 +229,7 @@ const Profile = () => {
                 <Image
                   className="rounded-full"
                   src={user.user.Profile}
-                  alt="Profile"
+                  alt="ProfileImage"
                   width={180}
                   height={180}
                 />

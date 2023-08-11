@@ -283,7 +283,7 @@ const Tweet: React.FC<ChildProps> = ({
             )}
           </div>
         ) : (
-          <div></div>
+          <></> 
         )}
       </div>
 
@@ -315,7 +315,7 @@ const Tweet: React.FC<ChildProps> = ({
                 {Link ? (
                   <img src={Link} className="py-1 rounded-3xl" />
                 ) : (
-                  <div></div>
+                  <></> 
                 )}
               </div>
             </div>
@@ -334,18 +334,18 @@ const Tweet: React.FC<ChildProps> = ({
       <div className="flex px-2 pt-8 py-2">
         {likeResponse ? (
           <button className="px-2 flex" onClick={handleUnLike}>
-            <Image className="h-8 w-8 mr-2 " src={heartFilled} alt="" />
+            <Image className="h-8 w-8 mr-2 " src={heartFilled} alt="HeartFilledIcon" />
             <span className="text-xl">{totalLikes}</span>
           </button>
         ) : (
           <button className="px-2 flex" onClick={handleLike}>
-            <Image className="h-8 w-8 mr-2 " src={like} alt="" />
+            <Image className="h-8 w-8 mr-2 " src={like} alt="LikeIcon" />
             <span className="text-xl">{totalLikes}</span>
           </button>
         )}
 
         <button className="px-4 flex" onClick={handleComment}>
-          <Image className="h-8 w-8 mr-2" src={comment} alt="" />
+          <Image className="h-8 w-8 mr-2" src={comment} alt="CommentIcon" />
           <span className="text-xl">{totalComments}</span>
         </button>
       </div>
@@ -362,7 +362,7 @@ const Tweet: React.FC<ChildProps> = ({
               />
 
               <button className="" type="submit">
-                <Image src={done} className="h-10 w-10" alt="" />
+                <Image src={done} className="h-10 w-10" alt="PostCommentIcon" />
               </button>
             </form>
           </div>
@@ -379,7 +379,7 @@ const Tweet: React.FC<ChildProps> = ({
                       <div></div>
                       {comment.Profile ? (
                         <Image
-                          className="lg:h-8 lg:w-8 h-3 w-3 rounded-full h mr-2"
+                          className="lg:h-8 lg:w-8 h-3 w-3 rounded-full mr-2"
                           src={comment.Profile}
                           alt="Profile"
                           width={100}
@@ -389,7 +389,7 @@ const Tweet: React.FC<ChildProps> = ({
                         <Image
                           src={dummy}
                           alt="User avatar"
-                          className="lg:h-8 lg:w-8 h-3 w-3 rounded-full h mr-2"
+                          className="lg:h-8 lg:w-8 h-3 w-3 rounded-full mr-2"
                         />
                       )}
                       <span className="hidden md:inline-block lg:text-xl">

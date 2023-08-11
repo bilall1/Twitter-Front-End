@@ -19,6 +19,10 @@ import dummy from "../assets/dummy.png";
 //Interfaces
 import {TweetUser} from "../Interfaces/interface"
 
+//Shared
+import {genRandonString} from "../Shared/sharedFunctions"
+import {resizeFile} from "../Shared/sharedFunctions"
+
 const homeMidSection = () => {
 
   //Redux store
@@ -81,8 +85,6 @@ const homeMidSection = () => {
           : response.data.Tweets
       );
       reloading;
-
-      console.log(response.data.Tweets);
     } catch (error) {
       console.error("Error while retrieving home tweets:");
     }
@@ -101,16 +103,6 @@ const homeMidSection = () => {
     setContent(value);
   };
 
-  function genRandonString(length = 12) {
-    var chars =
-      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
-    var charLength = chars.length;
-    var result = "";
-    for (var i = 0; i < length; i++) {
-      result += chars.charAt(Math.floor(Math.random() * charLength));
-    }
-    return result;
-  }
 
   const handleSubmit = async (e: any) => {
     setImageSet(false);
@@ -202,27 +194,12 @@ const homeMidSection = () => {
     }
   };
 
-  const resizeFile = (file: Blob) =>
-    new Promise((resolve) => {
-      Resizer.imageFileResizer(
-        file,
-        800,
-        800,
-        "jpg",
-        100,
-        0,
-        (uri) => {
-          resolve(uri);
-          setImageSet(true);
-        },
-        "blob"
-      );
-    });
+
 
   const handleImageChange = async (e: any) => {
     if (e.target.files[0]) {
       const image = await resizeFile(e.target.files[0]);
-      console.log(image);
+      setImageSet(true);
       setImage(image);
       setSelected(!selected);
     }
@@ -237,7 +214,7 @@ const homeMidSection = () => {
     <div className="w-full h-full flex flex-col pt-16">
       <div>
         <h1 className="text-3xl text-gray-900 dark:text-white px-2">
-          Twitter{" "}
+          Twitter
         </h1>
       </div>
 
@@ -287,7 +264,7 @@ const homeMidSection = () => {
                     className="rounded-3xl"
                   />
                 ) : (
-                  <div></div>
+                  <></> 
                 )}
               </div>
             ) : (
@@ -333,7 +310,7 @@ const homeMidSection = () => {
           />
         </div>
       ) : (
-        <div></div>
+        <></> 
       )}
 
       <div className="py-4 px-2">

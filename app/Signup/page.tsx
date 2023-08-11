@@ -38,7 +38,6 @@ export default function signup() {
       };
 
       const response = await apiClient.post("/createUser", postData);
-      console.log("Response:", response.data);
       setSignUpMessage("Sucessfully Signed Up.");
     } catch (error) {
       console.error("Error:", error);
@@ -48,7 +47,7 @@ export default function signup() {
   return (
     <div className="h-screen flex items-center justify-center  ">
       <div className="rounded-md py-8 px-12  bg-slate-200">
-        <Image className="h-14 w-14 mr-2" src={logo} alt="" />
+        <Image className="h-14 w-14 mr-2" src={logo} alt="TwitterLogo" />
         <h1 className="text-2xl font-bold">Sign Up for Twitter</h1>
         <form action="/" onSubmit={handleSubmit}>
           <br></br>

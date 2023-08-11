@@ -17,7 +17,7 @@ export default function SideBar() {
           <Image
             className="lg:h-20 lg:w-20 h-12 w-12 mr-10"
             src={logo}
-            alt=""
+            alt="Twitter Logo"
           />
         </div>
 
@@ -52,7 +52,7 @@ export default function SideBar() {
               <Image
                 className="lg:h-7 lg:w-7 h-6 w-6 mr-2"
                 src={signout}
-                alt=""
+                alt="Signout Icon"
               />
               <span className="hidden md:inline-block lg:text-2xl">
                 Sign Out
