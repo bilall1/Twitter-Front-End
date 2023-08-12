@@ -326,12 +326,12 @@ const Tweet: React.FC<ChildProps> = ({
           <p className="text-lg">{content}</p>
 
           <div className="py-2">
-            {Link ? <img src={Link} className="py-1" /> : <div></div>}
+            {Link ? <img src={Link} className="py-1 rounded-3xl" /> : <div></div>}
           </div>
         </div>
       )}
 
-      <div className="flex px-2 pt-8 py-2">
+      <div className="flex px-12 pt-8 py-2">
         {likeResponse ? (
           <button className="px-2 flex" onClick={handleUnLike}>
             <Image className="h-8 w-8 mr-2 " src={heartFilled} alt="HeartFilledIcon" />
