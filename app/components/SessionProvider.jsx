@@ -2,10 +2,10 @@
 
 import {SessionProvider} from 'next-auth/react'
 
-const Provider1 = ({children})=>{
+const Provider = ({children})=>{
     return <SessionProvider >
         {children}
     </SessionProvider>
 }
 
-export default Provider1
+export default Provider
