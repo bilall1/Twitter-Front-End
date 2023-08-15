@@ -19,8 +19,10 @@ import { FiEdit2 } from "react-icons/fi";
 import { FiSave } from "react-icons/fi";
 import dummy from "../assets/dummy.png";
 //Interfaces
-import {TweetInterface} from "../Interfaces/interface";
-  
+import { TweetInterface } from "../Interfaces/interface";
+//Avatar
+import AvatarEditor from "react-avatar-editor";
+
 const Profile = () => {
   //Redux store
   const user = useAppSelector((state) => state.user);
@@ -46,6 +48,10 @@ const Profile = () => {
   const [image, setImage] = useState(null);
   const [url, setUrl] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const editorRef = useRef<AvatarEditor | null>(null);
+
+  //Crop handler
+  const [isCropped, setIsCropped] = useState(false);
 
   //Date Variables
   let date;
@@ -83,11 +89,23 @@ const Profile = () => {
   }, [tweets]);
 
   //Functions
+
+  const handleCrop = () => {
+    setIsCropped(false);
+    if (editorRef.current) {
+      const canvas = editorRef.current.getImage();
+      canvas.toBlob((blob: any) => {
+        setImage(blob);
+        console.log(blob);
+      });
+    }
+  };
+
   const handleImageChange = (e: any) => {
     if (e.target.files[0]) {
       setImage(e.target.files[0]);
       setProfileEditing(!profileEditing);
-      setShowInput(!showInput);
+      setIsCropped(true);
     }
   };
 
@@ -121,7 +139,8 @@ const Profile = () => {
             .catch((error: { message: any }) => {
               console.log(error.message, "error getting the image url");
             });
-          setImage(null);
+          // setImage(null);
+          setShowInput(!showInput);
         })
         .catch((error: { message: any }) => {
           console.log(error.message);
@@ -225,26 +244,68 @@ const Profile = () => {
                   <FiEdit2></FiEdit2>
                 </button>
               )}
-              {user.user.Profile ? (
+
+              {image && !isCropped ? (
                 <Image
                   className="rounded-full"
-                  src={user.user.Profile}
+                  src={URL.createObjectURL(image)}
                   alt="ProfileImage"
                   width={180}
                   height={180}
                 />
               ) : (
-                <Image
-                  src={dummy}
-                  alt="User avatar"
-                  className="w-24 h-24 rounded-full"
-                />
+                <div>
+                  {user.user.Profile ? (
+                    <Image
+                      className="rounded-full"
+                      src={user.user.Profile}
+                      alt="ProfileImage"
+                      width={180}
+                      height={180}
+                    />
+                  ) : (
+                    <Image
+                      src={dummy}
+                      alt="User avatar"
+                      className="w-24 h-24 rounded-full"
+                    />
+                  )}
+                </div>
               )}
             </div>
 
             {showInput ? (
               <div>
                 <input type="file" onChange={handleImageChange} />
+
+                {isCropped && (
+                  <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg">
+                      {image ? (
+                        <div>
+                          <AvatarEditor
+                            ref={editorRef}
+                            image={image}
+                            width={250}
+                            height={250}
+                            border={50}
+                            color={[255, 255, 255, 0.6]}
+                            scale={1.2}
+                            rotate={0}
+                          />
+                        </div>
+                      ) : (
+                        <></>
+                      )}
+                      <button
+                        onClick={handleCrop}
+                        className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-md"
+                      >
+                        Crop
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <p></p>
