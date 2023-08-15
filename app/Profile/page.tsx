@@ -96,7 +96,6 @@ const Profile = () => {
       const canvas = editorRef.current.getImage();
       canvas.toBlob((blob: any) => {
         setImage(blob);
-        console.log(blob);
       });
     }
   };
@@ -139,7 +138,6 @@ const Profile = () => {
             .catch((error: { message: any }) => {
               console.log(error.message, "error getting the image url");
             });
-          // setImage(null);
           setShowInput(!showInput);
         })
         .catch((error: { message: any }) => {
@@ -281,7 +279,7 @@ const Profile = () => {
                 {isCropped && (
                   <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
                     <div className="bg-white p-6 rounded-lg shadow-lg">
-                      {image ? (
+                      {image && (
                         <div>
                           <AvatarEditor
                             ref={editorRef}
@@ -294,9 +292,8 @@ const Profile = () => {
                             rotate={0}
                           />
                         </div>
-                      ) : (
-                        <></>
-                      )}
+                      ) 
+                      }
                       <button
                         onClick={handleCrop}
                         className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-md"
