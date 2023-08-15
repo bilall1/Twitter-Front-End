@@ -1,277 +1,279 @@
-import React, { useEffect, useRef, useState } from 'react'
-import Image from 'next/image'
-import apiClient from '../api/api'
-import { useSession } from 'next-auth/react'
-import dummy from "../assets/dummy.png"
-import { useAppSelector } from '../hooks'
+import React, { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import apiClient from "../api/api";
+import { useSession } from "next-auth/react";
+import dummy from "../assets/dummy.png";
+import { useAppSelector } from "../Redux/hooks";
+
+import {User} from "../Interfaces/interface"
 
 const ProfileRightBar = () => {
+  //Redux store
+  const user = useAppSelector((state) => state.user);
 
+  //Page Count
+  const [followingPage, setFollowingPage] = useState(1);
+  const [followerPage, setFollowerPage] = useState(1);
 
-    //Redux store 
-    const user = useAppSelector(state => state.user)
+  //Follower/Following
+  const [followings, setFollowings] = useState<User[] | null>(null);
+  const [followers, setFollowers] = useState<User[] | null>(null);
+  const [totalFollowers, setTotalFollowers] = useState(0);
+  const [totalFollowings, setTotalFollowings] = useState(0);
+  const [reloading, setReloading] = useState(false);
 
-    const [followingPage, setFollowingPage] = useState(1);
-    const [followerPage, setFollowerPage] = useState(1);
+  //Session
+  const { data: session } = useSession({
+    required: true,
+  });
+  const userEmail = session?.user?.email || "invalid";
 
-    const [followings, setFollowings] = useState<User[] | null>(null);
-    const [followers, setFollowers] = useState<User[] | null>(null);
+  //Div References
+  const followingRef = useRef<HTMLDivElement | null>(null);
+  const followerRef = useRef<HTMLDivElement | null>(null);
 
-    const [totalFollowers,setTotalFollowers]= useState(0)
-    const [totalFollowings,setTotalFollowings]= useState(0)
+  //UseEffects
 
-    const [reloading,setReloading]= useState(false)
+  useEffect(() => {
+    retrievefollowing();
+  }, [userEmail, followingPage]);
 
-    interface User {
-        Id: string
-        FirstName: string
-        LastName: string
-        Followed: boolean
-        Profile : string
+  useEffect(() => {
+    retrievefollowers();
+  }, [userEmail, followerPage]);
 
+  useEffect(() => {
+    getCountofFollowers();
+    getCountofFollowings();
+  }, [reloading]);
+
+  useEffect(() => {
+    const div = followerRef.current;
+    if (div) {
+      div.addEventListener("scroll", handleScrollForFollower);
     }
-
-    const { data: session } = useSession({
-        required: true
-    })
-    const userEmail = session?.user?.email || 'invalid'
-
-
-
-    const retrievefollowing = async () => {
-
-        const postData = {
-            "Id": user.user.Id,
-            "Page": followingPage
-        }
-        try {
-            const response = await apiClient.post('/getFollowing', postData);
-            setFollowings(prevFollowings => {
-                if (prevFollowings) {
-                    return [...prevFollowings, ...response.data.Following];
-                } else {
-                    return response.data.Following;
-                }
-            });
-
-        } catch (error) {
-            console.error('Error while retrieving user followings');
-        }
-
-    }
-    const divRef = useRef<HTMLDivElement | null>(null);
-
-    const handleScrollForFollowing = (event: Event) => {
-        const target = event.target as HTMLDivElement;
-        const { scrollTop, scrollHeight, clientHeight } = target;
-        if (clientHeight + scrollTop !== scrollHeight) return;
-        setFollowingPage(oldPage => oldPage + 1);
+    return () => {
+      if (div) {
+        div.removeEventListener("scroll", handleScrollForFollower);
+      }
     };
+  }, []);
 
-    useEffect(() => {
-        const div = divRef.current;
-        if (div) {
-            div.addEventListener('scroll', handleScrollForFollowing);
-        }
-        return () => {
-            if (div) {
-                div.removeEventListener('scroll', handleScrollForFollowing);
-            }
-        };
-    }, []);
-
-
-
-    const retrievefollowers = async () => {
-
-        const postData = {
-            "Id": user.user.Id,
-            "Page": followerPage
-        }
-        try {
-            const response = await apiClient.post('/getFollowers', postData);
-            setFollowers(prevFollowers => {
-                if (prevFollowers) {
-                    return [...prevFollowers, ...response.data.Followers];
-                } else {
-                    return response.data.Followers;
-                }
-            });
-        } catch (error) {
-            console.error('Error while retrieving user followers');
-        }
-
+  useEffect(() => {
+    const div = followingRef.current;
+    if (div) {
+      div.addEventListener("scroll", handleScrollForFollowing);
     }
-
-
-    const getCountofFollowers = async () => {
-
-        const postData = {
-            "Id": user.user.Id
-        }
-        try {
-            const response = await apiClient.post('/getTotalFollowers', postData);
-            setTotalFollowers(response.data.Count)
-            
-        } catch (error) {
-            console.error('Error while getting followers count');
-        }
-
-    }
-    const getCountofFollowings = async () => {
-
-        const postData = {
-            "Id": user.user.Id
-        }
-        try {
-            const response = await apiClient.post('/getTotalFollowings', postData);
-            setTotalFollowings(response.data.Count)
-            
-        } catch (error) {
-            console.error('Error while getting followers count');
-        }
-
-    }
-
-
-
-
-
-    const divRef1 = useRef<HTMLDivElement | null>(null);
-
-    const handleScrollForFollower = (event: Event) => {
-        const target = event.target as HTMLDivElement;
-        const { scrollTop, scrollHeight, clientHeight } = target;
-        if (clientHeight + scrollTop !== scrollHeight) return;
-        setFollowerPage(oldPage => oldPage + 1);
+    return () => {
+      if (div) {
+        div.removeEventListener("scroll", handleScrollForFollowing);
+      }
     };
+  }, []);
 
-    useEffect(() => {
-        const div = divRef1.current;
-        if (div) {
-            div.addEventListener('scroll', handleScrollForFollower);
+  //Functions
+
+  const retrievefollowing = async () => {
+    const postData = {
+      Id: user.user.Id,
+      Page: followingPage,
+    };
+    try {
+      const response = await apiClient.post("/getFollowing", postData);
+      setFollowings((prevFollowings) => {
+        if (prevFollowings) {
+          return [...prevFollowings, ...response.data.Following];
+        } else {
+          return response.data.Following;
         }
-        return () => {
-            if (div) {
-                div.removeEventListener('scroll', handleScrollForFollower);
-            }
-        };
-    }, []);
-
-    useEffect(() => {
-        retrievefollowing()
-    }, [userEmail,followingPage])
-
-    useEffect(() => {
-        retrievefollowers()
-    }, [userEmail])
-
-    useEffect(() => {
-        getCountofFollowers()
-        getCountofFollowings()
-     
-    }, [reloading])
-
-    
-
-    const handleUnfollow = async (userId: string) => {
-        const postData = {
-            "UserId":user.user.Id,
-            "FollowerId": userId
-        }
-        try {
-            const response = await apiClient.post('/deleteFollower', postData);
-
-            if (response.status === 200) { 
-                setFollowings(prevFollowings => prevFollowings?.filter(user => user.Id !== userId) || null);
-
-                setReloading(!reloading)
-
-            } else {
-                console.error('Error while unfollowing user');
-            }
-        } catch (error) {
-            console.error('Error while unfollowing user');
-        }
+      });
+    } catch (error) {
+      console.error("Error while retrieving user followings");
     }
+  };
 
+  const handleScrollForFollowing = (event: Event) => {
+    const target = event.target as HTMLDivElement;
+    const { scrollTop, scrollHeight, clientHeight } = target;
+    if (clientHeight + scrollTop !== scrollHeight) return;
+    setFollowingPage((oldPage) => oldPage + 1);
+  };
 
-    return (
+  const retrievefollowers = async () => {
+    const postData = {
+      Id: user.user.Id,
+      Page: followerPage,
+    };
+    try {
+      const response = await apiClient.post("/getFollowers", postData);
+      setFollowers((prevFollowers) => {
+        if (prevFollowers) {
+          return [...prevFollowers, ...response.data.Followers];
+        } else {
+          return response.data.Followers;
+        }
+      });
+    } catch (error) {
+      console.error("Error while retrieving user followers");
+    }
+  };
 
-        <div className='w-1/3 h-full flex flex-col pt-14 '>
+  const getCountofFollowers = async () => {
+    const postData = {
+      Id: user.user.Id,
+    };
+    try {
+      const response = await apiClient.post("/getTotalFollowers", postData);
+      setTotalFollowers(response.data.Count);
+    } catch (error) {
+      console.error("Error while getting followers count");
+    }
+  };
+  const getCountofFollowings = async () => {
+    const postData = {
+      Id: user.user.Id,
+    };
+    try {
+      const response = await apiClient.post("/getTotalFollowings", postData);
+      setTotalFollowings(response.data.Count);
+    } catch (error) {
+      console.error("Error while getting followers count");
+    }
+  };
 
-            <div className='fixed flex flex-col justify-between'>
+  const handleScrollForFollower = (event: Event) => {
+    const target = event.target as HTMLDivElement;
+    const { scrollTop, scrollHeight, clientHeight } = target;
+    if (clientHeight + scrollTop !== scrollHeight) return;
+    setFollowerPage((oldPage) => oldPage + 1);
+  };
 
-                <div> 
+  const handleUnfollow = async (userId: string) => {
+    const postData = {
+      UserId: user.user.Id,
+      FollowerId: userId,
+    };
+    try {
+      const response = await apiClient.post("/deleteFollower", postData);
 
-                    <div className='border-b-2 border-gray-500 opacity-50 pb-4'>
-                        <span className='text-2xl '> {totalFollowings} Following</span>
+      if (response.status === 200) {
+        setFollowings(
+          (prevFollowings) =>
+            prevFollowings?.filter((user) => user.Id !== userId) || null
+        );
+
+        setReloading(!reloading);
+      } else {
+        console.error("Error while unfollowing user");
+      }
+    } catch (error) {
+      console.error("Error while unfollowing user");
+    }
+  };
+
+  return (
+    <div className="w-1/3 h-full flex flex-col pt-14 ">
+      <div className="fixed flex flex-col justify-between">
+        <div>
+          <div className="border-b-2 border-gray-500 opacity-50 pb-4">
+            <span className="text-2xl "> {totalFollowings} Following</span>
+          </div>
+
+          <div
+            className="pt-2"
+            ref={followingRef}
+            style={{
+              height: "300px",
+              overflow: "auto",
+              scrollbarWidth: "none",
+            }}
+          >
+            {followings &&
+              followings.map(
+                (user: User, index: React.Key | null | undefined) => (
+                  <div className="pl-3 pt-3 flex-col py-2" key={index}>
+                    <div className="flex">
+                      {user.Profile ? (
+                        <Image
+                          className="lg:h-12 lg:w-12 h-6 w-6 rounded-full mr-2"
+                          src={user.Profile}
+                          alt="Profile"
+                          width={100}
+                          height={100}
+                        />
+                      ) : (
+                        <Image
+                          className="lg:h-12 lg:w-12 h-6 w-6 rounded-full mr-2"
+                          src={dummy}
+                          alt="User avatar"
+                        />
+                      )}
+                      <span className="hidden md:inline-block lg:text-2xl mt-1">
+                        {user.FirstName} {user.LastName}
+                      </span>
                     </div>
 
-                    <div className='pt-2' ref={divRef} style={{ height: '300px', overflow: 'auto', scrollbarWidth: 'none' }}>
-
-                        {followings && followings.map((user: User, index: React.Key | null | undefined) => (
-                            <div className='pl-3 pt-3 flex-col py-2' key={index}>
-                                <div className='flex'>
-                                {user.Profile ? <Image className='lg:h-12 lg:w-12 h-6 w-6 rounded-full h mr-2' src={user.Profile} alt="Profile" width={100} height={100} /> : <Image className='lg:h-12 lg:w-12 h-6 w-6 rounded-full h mr-2' src={dummy} alt="User avatar"  />}
-                                    <span className="hidden md:inline-block lg:text-2xl mt-1">{user.FirstName} {user.LastName}</span>
-                                </div>
-
-                                <div>
-                                    <button className="bg-red-500 hover:bg-red-600 text-white py-2 ml-14 px-2 rounded-full"
-                                        onClick={() => handleUnfollow(user.Id)}
-                                    >
-                                        Unfollow
-                                    </button>
-                                </div>
-
-                            </div>
-                        ))}
-
-
+                    <div>
+                      <button
+                        className="bg-red-500 hover:bg-red-600 text-white py-2 ml-14 px-2 rounded-full"
+                        onClick={() => handleUnfollow(user.Id)}
+                      >
+                        Unfollow
+                      </button>
                     </div>
-
-                </div>
-
-
-                <div >
-
-
-                    <div className='border-b-2 border-gray-500 opacity-50 pb-4 mt-8'>
-                        <span className='text-2xl '>{totalFollowers} Followers</span>
-
-                        {/* Followers route created at backend. Call and map simple  */}
-                    </div>
-
-                    <div className='pt-2' ref={divRef1} style={{ height: '300px', overflow: 'auto', scrollbarWidth: 'none' }}>
-
-                        {followers && followers.map((user: User, index: React.Key | null | undefined) => (
-                            <div className='pl-3 pt-3 flex-col py-2' key={index}>
-                                <div className='flex'>
-                                {user.Profile ? <Image className='lg:h-12 lg:w-12 h-6 w-6 rounded-full h mr-2' src={user.Profile} alt="Profile" width={100} height={100} /> : <Image className='lg:h-12 lg:w-12 h-6 w-6 rounded-full h mr-2' src={dummy} alt="User avatar"  />}
-                                    <span className="hidden md:inline-block lg:text-2xl">{user.FirstName} {user.LastName}</span>
-                                </div>
-
-
-                            </div>
-                        ))}
-
-                    </div>
-
-                </div>
-
-
-
-
-
-
-            </div>
-
-
-
+                  </div>
+                )
+              )}
+          </div>
         </div>
 
-    )
-}
+        <div>
+          <div className="border-b-2 border-gray-500 opacity-50 pb-4 mt-8">
+            <span className="text-2xl ">{totalFollowers} Followers</span>
 
-export default ProfileRightBar
+          </div>
+
+          <div
+            className="pt-2"
+            ref={followerRef}
+            style={{
+              height: "300px",
+              overflow: "auto",
+              scrollbarWidth: "none",
+            }}
+          >
+            {followers &&
+              followers.map(
+                (user: User, index: React.Key | null | undefined) => (
+                  <div className="pl-3 pt-3 flex-col py-2" key={index}>
+                    <div className="flex">
+                      {user.Profile ? (
+                        <Image
+                          className="lg:h-12 lg:w-12 h-6 w-6 rounded-full mr-2"
+                          src={user.Profile}
+                          alt="Profile"
+                          width={100}
+                          height={100}
+                        />
+                      ) : (
+                        <Image
+                          className="lg:h-12 lg:w-12 h-6 w-6 rounded-full mr-2"
+                          src={dummy}
+                          alt="User avatar"
+                        />
+                      )}
+                      <span className="hidden md:inline-block lg:text-2xl">
+                        {user.FirstName} {user.LastName}
+                      </span>
+                    </div>
+                  </div>
+                )
+              )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProfileRightBar;
