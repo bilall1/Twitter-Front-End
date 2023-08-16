@@ -98,11 +98,11 @@ const Profile = () => {
 
   //Functions
 
-  const handleDeleteCrossPersonal = () => {
+  const handleClosePersonalInfoModal = () => {
     setEditing(false);
   };
 
-  const handleDeleteCrossPassword = () => {
+  const handleClosePasswordModal = () => {
     setIsUpdatingPassword(false);
     setPasswordValid("");
   };
@@ -127,7 +127,7 @@ const Profile = () => {
     }
   };
 
-  const handlePasswordUpdate = (e: { target: { name: any; value: any } }) => {
+  const handlePasswordFormUpdate = (e: { target: { name: any; value: any } }) => {
     setPasswordForm({ ...passwordForm, [e.target.name]: e.target.value });
   };
 
@@ -351,8 +351,8 @@ const Profile = () => {
               <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
                 <div className="bg-white p-6 rounded-lg shadow-lg">
                   <div className="flex-col">
-                    <button onClick={handleDeleteCrossPassword}>
-                      <Image src={cross} alt="Cross Icon" className="h-8 w-8" />
+                    <button onClick={handleClosePasswordModal}>
+                      <Image src={cross} alt="Cross Icon" className="h-8 w-8 ml-96" />
                     </button>
                   </div>
 
@@ -367,9 +367,9 @@ const Profile = () => {
 
                     <h2 className="text-xl  text-gray-600">
                       <input
-                        type="text"
+                        type="password"
                         name="OldPassword"
-                        onChange={handlePasswordUpdate}
+                        onChange={handlePasswordFormUpdate}
                         className="border rounded px-2 py-1"
                       />
                     </h2>
@@ -382,9 +382,9 @@ const Profile = () => {
 
                     <h2 className="text-xl  text-gray-600">
                       <input
-                        type="text"
+                        type="password"
                         name="NewPassword"
-                        onChange={handlePasswordUpdate}
+                        onChange={handlePasswordFormUpdate}
                         className="border rounded px-2 py-1"
                       />
                     </h2>
@@ -452,8 +452,8 @@ const Profile = () => {
               <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
                 <div className="bg-white p-6 rounded-lg shadow-lg">
                   <div className="flex-col">
-                    <button onClick={handleDeleteCrossPersonal}>
-                      <Image src={cross} alt="Cross Icon" className="h-8 w-8" />
+                    <button onClick={handleClosePersonalInfoModal}>
+                      <Image src={cross} alt="Cross Icon" className="h-8 w-8 ml-96" />
                     </button>
                   </div>
 
