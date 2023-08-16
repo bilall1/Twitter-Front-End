@@ -502,8 +502,7 @@ const Profile = () => {
                   </div>
 
                   <p className="text-lg text-gray-600 m-2">
-                    {" "}
-                    {user.user.Email}{" "}
+                    {user.user.Email}
                   </p>
 
                   <span className="flex m-2">
