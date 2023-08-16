@@ -429,22 +429,24 @@ const Profile = () => {
               </svg>
             </button>
 
-            <button
-              className="flex items-center bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded "
-              onClick={() => {
-                setIsUpdatingPassword(true);
-              }}
-            >
-              Update Password
-              <svg
-                className="w-5 h-5 ml-2"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
+            {!user.user.ThirdParty && (
+              <button
+                className="flex items-center bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded "
+                onClick={() => {
+                  setIsUpdatingPassword(true);
+                }}
               >
-                <path d="M6 8V6a6 6 0 0112 0v2h1a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2h1zm5 6.732a2 2 0 111 0V16a1 1 0 01-2 0v-1.268zM7 8h6V6a3 3 0 00-6 0v2z"></path>
-              </svg>
-            </button>
+                Update Password
+                <svg
+                  className="w-5 h-5 ml-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M6 8V6a6 6 0 0112 0v2h1a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2h1zm5 6.732a2 2 0 111 0V16a1 1 0 01-2 0v-1.268zM7 8h6V6a3 3 0 00-6 0v2z"></path>
+                </svg>
+              </button>
+            )}
 
             {editing && (
               <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
