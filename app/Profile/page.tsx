@@ -18,6 +18,7 @@ import Image from "next/image";
 import { FiEdit2 } from "react-icons/fi";
 import { FiSave } from "react-icons/fi";
 import dummy from "../assets/dummy.png";
+import cross from "../assets/cross.png";
 //Interfaces
 import { TweetInterface } from "../Interfaces/interface";
 //Avatar
@@ -32,7 +33,7 @@ const Profile = () => {
   const { data: session } = useSession({
     required: true,
   });
-  const userEmail = session?.user?.email || "invalid"; // Handle null session or missing email
+  const userEmail = session?.user?.email || "invalid";
 
   //Tweet
   const [page, setPage] = useState(1);
@@ -47,7 +48,6 @@ const Profile = () => {
   //Profile Upload
   const [image, setImage] = useState(null);
   const [url, setUrl] = useState<string | null>(null);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const editorRef = useRef<AvatarEditor | null>(null);
 
   //Crop handler
@@ -69,7 +69,15 @@ const Profile = () => {
     LastName: user.user.LastName,
     Email: user.user.Email,
     D_o_b: formattedDate,
-    Password: user.user.Password,
+  });
+
+  //Password Change
+  const [PasswordValid, setPasswordValid] = useState("");
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
+  const [passwordForm, setPasswordForm] = useState({
+    OldPassword: "",
+    NewPassword: "",
   });
 
   //UseEffects
@@ -89,6 +97,39 @@ const Profile = () => {
   }, [tweets]);
 
   //Functions
+
+  const handleClosePersonalInfoModal = () => {
+    setEditing(false);
+  };
+
+  const handleClosePasswordModal = () => {
+    setIsUpdatingPassword(false);
+    setPasswordValid("");
+  };
+
+  const handlePasswordChange = async () => {
+    setPasswordValid("");
+    try {
+      const postData = {
+        Id: user.user.Id,
+        OldPassword: passwordForm.OldPassword,
+        NewPassword: passwordForm.NewPassword,
+      };
+      const response = await apiClient.post("/updateUserPassword", postData);
+
+      if (response.data.update == 0) {
+        setPasswordValid("Old Password Does'nt Match. Try Again!!");
+      } else {
+        setPasswordValid("Password Updated Successfuly!!");
+      }
+    } catch (error) {
+      console.error("Error changing password");
+    }
+  };
+
+  const handlePasswordFormUpdate = (e: { target: { name: any; value: any } }) => {
+    setPasswordForm({ ...passwordForm, [e.target.name]: e.target.value });
+  };
 
   const handleCrop = () => {
     setIsCropped(false);
@@ -163,7 +204,6 @@ const Profile = () => {
         FirstName: formData.FirstName,
         LastName: formData.LastName,
         D_o_b: formData.D_o_b,
-        Password: formData.Password,
       };
 
       const response = await apiClient.post("/updateUserData", postData);
@@ -292,8 +332,7 @@ const Profile = () => {
                             rotate={0}
                           />
                         </div>
-                      ) 
-                      }
+                      )}
                       <button
                         onClick={handleCrop}
                         className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-md"
@@ -308,82 +347,193 @@ const Profile = () => {
               <p></p>
             )}
 
-            <h2 className="text-2xl font-bold">
-              {editing ? (
-                <input
-                  type="text"
-                  name="FirstName"
-                  value={formData.FirstName}
-                  onChange={handleInputChange}
-                  className="border rounded px-2 py-1"
-                />
-              ) : (
-                user.user.FirstName
-              )}
-            </h2>
-            <h2 className="text-2xl font-bold">
-              {editing ? (
-                <input
-                  type="text"
-                  name="LastName"
-                  value={formData.LastName}
-                  onChange={handleInputChange}
-                  className="border rounded px-2 py-1"
-                />
-              ) : (
-                user.user.LastName
-              )}
-            </h2>
-            <p className="text-lg text-gray-600"> {user.user.Email} </p>
-            <span className="flex">
-              <p className="text-lg text-gray-600 font-bold">Date of Birth:</p>
-              <p className="text-lg text-gray-600">
-                {editing ? (
-                  <input
-                    type="date"
-                    name="D_o_b"
-                    value={formData.D_o_b}
-                    onChange={handleInputChange}
-                    className="border rounded px-2 py-1"
-                  />
-                ) : (
-                  formattedDate
-                )}
-              </p>
-            </span>
+            {isUpdatingPassword && (
+              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg">
+                  <div className="flex-col">
+                    <button onClick={handleClosePasswordModal}>
+                      <Image src={cross} alt="Cross Icon" className="h-8 w-8 ml-96" />
+                    </button>
+                  </div>
 
-            <span className="flex">
-              <p className="text-lg text-gray-600 font-bold">Password:</p>
-              <p className="ml-2 text-xl text-gray-600">
-                {editing ? (
-                  <input
-                    type="text"
-                    name="Password"
-                    value={formData.Password}
-                    onChange={handleInputChange}
-                    className="border rounded px-2 py-1"
-                  />
-                ) : (
-                  "******"
-                )}
-              </p>
-            </span>
-          </div>
+                  <h3 className="font-bold text-2xl text-gray-600 mb-6 mt-4">
+                    Manage Password:
+                  </h3>
 
-          {editing ? (
-            <button className="text-xl" onClick={handleSubmit}>
-              <FiSave></FiSave>
-            </button>
-          ) : (
+                  <div className="flex m-2">
+                    <p className="text-lg text-gray-600 font-bold">
+                      Old Password:
+                    </p>
+
+                    <h2 className="text-xl  text-gray-600">
+                      <input
+                        type="password"
+                        name="OldPassword"
+                        onChange={handlePasswordFormUpdate}
+                        className="border rounded px-2 py-1"
+                      />
+                    </h2>
+                  </div>
+
+                  <div className="flex m-2">
+                    <p className="text-lg text-gray-600 font-bold">
+                      New Password:
+                    </p>
+
+                    <h2 className="text-xl  text-gray-600">
+                      <input
+                        type="password"
+                        name="NewPassword"
+                        onChange={handlePasswordFormUpdate}
+                        className="border rounded px-2 py-1"
+                      />
+                    </h2>
+                  </div>
+
+                  <p className=" text-blue-500 m-2 font-bold">
+                    {PasswordValid}
+                  </p>
+
+                  <button
+                    onClick={handlePasswordChange}
+                    className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-md"
+                  >
+                    Update
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <h2 className="font-bold text-2xl text-gray-500">
+              {user.user.FirstName} {user.user.LastName}
+            </h2>
+
             <button
+              className="flex items-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
               onClick={() => {
                 setEditing(true);
               }}
-              className="text-xl"
             >
-              <FiEdit2></FiEdit2>
+              Edit Personal Info
+              <svg
+                className="w-5 h-5 ml-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M9 5a.5.5 0 01.707-.707L14.293 9l-4.586 4.707a.5.5 0 11-.707-.707L13.293 9 9 5z"
+                  clipRule="evenodd"
+                ></path>
+              </svg>
             </button>
-          )}
+
+            {!user.user.ThirdParty && (
+              <button
+                className="flex items-center bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded "
+                onClick={() => {
+                  setIsUpdatingPassword(true);
+                }}
+              >
+                Update Password
+                <svg
+                  className="w-5 h-5 ml-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M6 8V6a6 6 0 0112 0v2h1a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2h1zm5 6.732a2 2 0 111 0V16a1 1 0 01-2 0v-1.268zM7 8h6V6a3 3 0 00-6 0v2z"></path>
+                </svg>
+              </button>
+            )}
+
+            {editing && (
+              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg">
+                  <div className="flex-col">
+                    <button onClick={handleClosePersonalInfoModal}>
+                      <Image src={cross} alt="Cross Icon" className="h-8 w-8 ml-96" />
+                    </button>
+                  </div>
+
+                  <h2 className="text-xl font-bold mb-4">
+                    Personal Information
+                  </h2>
+
+                  <div className="flex m-2">
+                    <p className="text-lg text-gray-600 font-bold">
+                      First Name:
+                    </p>
+
+                    <h2 className="text-xl text-gray-600 ">
+                      {editing ? (
+                        <input
+                          type="text"
+                          name="FirstName"
+                          value={formData.FirstName}
+                          onChange={handleInputChange}
+                          className="border rounded px-2 py-1"
+                        />
+                      ) : (
+                        user.user.FirstName
+                      )}
+                    </h2>
+                  </div>
+
+                  <div className="flex m-2">
+                    <p className="text-lg text-gray-600 font-bold">
+                      Last Name:
+                    </p>
+
+                    <h2 className="text-xl  text-gray-600">
+                      {editing ? (
+                        <input
+                          type="text"
+                          name="LastName"
+                          value={formData.LastName}
+                          onChange={handleInputChange}
+                          className="border rounded px-2 py-1"
+                        />
+                      ) : (
+                        user.user.LastName
+                      )}
+                    </h2>
+                  </div>
+
+                  <p className="text-lg text-gray-600 m-2">
+                    {user.user.Email}
+                  </p>
+
+                  <span className="flex m-2">
+                    <p className="text-lg text-gray-600 font-bold">
+                      Date of Birth:
+                    </p>
+                    <p className="text-lg text-gray-600">
+                      {editing ? (
+                        <input
+                          type="date"
+                          name="D_o_b"
+                          value={formData.D_o_b}
+                          onChange={handleInputChange}
+                          className="border rounded px-2 py-1"
+                        />
+                      ) : (
+                        formattedDate
+                      )}
+                    </p>
+                  </span>
+
+                  <button
+                    className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-md"
+                    onClick={handleSubmit}
+                  >
+                    <FiSave></FiSave>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="border-b-2 border-gray-500 opacity-50 my-4 w-3/4"></div>
