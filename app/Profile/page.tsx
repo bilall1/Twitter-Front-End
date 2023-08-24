@@ -20,7 +20,7 @@ import { FiSave } from "react-icons/fi";
 import dummy from "../assets/dummy.png";
 import cross from "../assets/cross.png";
 //Interfaces
-import { TweetInterface } from "../Interfaces/interface";
+import { MySession, TweetInterface } from "../Interfaces/interface";
 //Avatar
 import AvatarEditor from "react-avatar-editor";
 
@@ -34,6 +34,14 @@ const Profile = () => {
     required: true,
   });
   const userEmail = session?.user?.email || "invalid";
+
+   //Header
+   const config = {
+    headers: {
+      Authorization: `Bearer ${(session as MySession)?.accessToken}`,
+      ThirdParty: user.user.ThirdParty,
+    },
+  };
 
   //Tweet
   const [page, setPage] = useState(1);
@@ -115,7 +123,7 @@ const Profile = () => {
         OldPassword: passwordForm.OldPassword,
         NewPassword: passwordForm.NewPassword,
       };
-      const response = await apiClient.post("/updateUserPassword", postData);
+      const response = await apiClient.post("/updateUserPassword", postData,config);
 
       if (response.data.update == 0) {
         setPasswordValid("Old Password Does'nt Match. Try Again!!");
@@ -168,7 +176,8 @@ const Profile = () => {
                 try {
                   const response = await apiClient.post(
                     "/addProfilePicture",
-                    postData
+                    postData,
+                    config
                   );
                   dispatch(fetchUsers(userEmail));
                 } catch (error) {
@@ -206,7 +215,7 @@ const Profile = () => {
         D_o_b: formData.D_o_b,
       };
 
-      const response = await apiClient.post("/updateUserData", postData);
+      const response = await apiClient.post("/updateUserData", postData,config);
       dispatch(fetchUsers(userEmail));
     } catch (error) {
       console.error("Error while retrieving tweets:");
@@ -220,7 +229,7 @@ const Profile = () => {
       Page: page,
     };
     try {
-      const response = await apiClient.post("/getTweets", postData);
+      const response = await apiClient.post("/getTweets", postData,config);
       setTweets((oldTweets) =>
         oldTweets
           ? [...oldTweets, ...response.data.Tweets]
@@ -243,7 +252,7 @@ const Profile = () => {
     };
 
     try {
-      const response = await apiClient.post("/deleteTweet", postData);
+      const response = await apiClient.post("/deleteTweet", postData,config);
 
       setTweets((oldTweets) =>
         oldTweets ? oldTweets.filter((tweet) => tweet.Id !== id) : []

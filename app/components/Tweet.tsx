@@ -10,7 +10,8 @@ import dummy from "../assets/dummy.png";
 import heartFilled from "../assets/heart-filled.png";
 import done from "../assets/done.png";
 //Interface
-import {TweetComments} from "../Interfaces/interface"
+import {MySession, TweetComments} from "../Interfaces/interface"
+import { useSession } from "next-auth/react";
 
 interface ChildProps {
   TweetId: number;
@@ -58,6 +59,20 @@ const Tweet: React.FC<ChildProps> = ({
   //Limit
   const [limit, setLimit] = useState(3);
 
+  //Session
+  const { data: session } = useSession({
+    required: true,
+  });
+  const userEmail = session?.user?.email || "invalid";
+  
+  //Header
+  const config = {
+    headers: {
+      Authorization: `Bearer ${(session as MySession)?.accessToken}`,
+      ThirdParty: user.user.ThirdParty,
+    },
+  };
+
   //UseEffects
 
   useEffect(() => {
@@ -82,7 +97,7 @@ const Tweet: React.FC<ChildProps> = ({
     };
 
     try {
-      const response = await apiClient.post("/showCommentsOnTweet", postData);
+      const response = await apiClient.post("/showCommentsOnTweet", postData,config);
 
       if (response.data.Comments) {
         setCommentOnTweets(response.data.Comments);
@@ -112,7 +127,7 @@ const Tweet: React.FC<ChildProps> = ({
     };
 
     try {
-      const response = await apiClient.post("/submitComment", postData);
+      const response = await apiClient.post("/submitComment", postData,config);
     } catch (error) {
       console.error("Error while submitting comment");
     }
@@ -127,7 +142,7 @@ const Tweet: React.FC<ChildProps> = ({
       UserId: user.user.Id,
     };
     try {
-      const response = await apiClient.post("/getIfTweetLiked", postData);
+      const response = await apiClient.post("/getIfTweetLiked", postData,config);
       setlikeResponse(response.data.Like);
     } catch (error) {
       console.error("Error getting if liked");
@@ -139,7 +154,7 @@ const Tweet: React.FC<ChildProps> = ({
       TweetId: TweetId,
     };
     try {
-      const response = await apiClient.post("/getLikesOnTweet", postData);
+      const response = await apiClient.post("/getLikesOnTweet", postData,config);
       settotalLikes(response.data.Count);
     } catch (error) {
       console.error("Error getting likes on tweets");
@@ -153,7 +168,8 @@ const Tweet: React.FC<ChildProps> = ({
     try {
       const response = await apiClient.post(
         "/getTotalCommentOnTweet",
-        postData
+        postData,
+        config
       );
       settotalComments(response.data.Count);
     } catch (error) {
@@ -167,7 +183,7 @@ const Tweet: React.FC<ChildProps> = ({
       UserId: user.user.Id,
     };
     try {
-      const response = await apiClient.post("/likeTweet", postData);
+      const response = await apiClient.post("/likeTweet", postData,config);
 
       if (likePressed == 0) {
         setlikePressed(1);
@@ -185,7 +201,7 @@ const Tweet: React.FC<ChildProps> = ({
       UserId: user.user.Id,
     };
     try {
-      const response = await apiClient.post("/unlikeTweet", postData);
+      const response = await apiClient.post("/unlikeTweet", postData,config);
 
       if (likePressed == 0) {
         setlikePressed(1);
@@ -214,7 +230,7 @@ const Tweet: React.FC<ChildProps> = ({
     };
 
     try {
-      const response = await apiClient.put("/updateTweetContent", postData);
+      const response = await apiClient.put("/updateTweetContent", postData,config);
       setIsEditing(false);
       setContentOfTweet(editedContent);
     } catch (error) {

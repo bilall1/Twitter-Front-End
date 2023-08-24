@@ -17,8 +17,9 @@ export default function Home() {
   const { data: session } = useSession({
     required: true,
   });
-  const userEmail = session?.user?.email || "invalid";
 
+  const userEmail = session?.user?.email || "invalid";
+ 
   useEffect(() => {
     if (userEmail != "invalid") {
       dispatch(fetchUsers(userEmail));

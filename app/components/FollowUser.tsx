@@ -7,10 +7,9 @@ import { useAppSelector } from "../Redux/hooks";
 import Image from "next/image";
 import dummy from "../assets/dummy.png";
 //Interfaces
-import {UserData} from "../Interfaces/interface"
+import { MySession, UserData } from "../Interfaces/interface";
 
 export default function FollowList() {
-  
   //Redux store
   const user = useAppSelector((state) => state.user);
 
@@ -24,6 +23,14 @@ export default function FollowList() {
   const [toFollow, setToFollow] = useState<UserData | null>(null);
   const [changeInList, setChangeInList] = useState(0);
 
+  //Header
+  const config = {
+    headers: {
+      Authorization: `Bearer ${(session as MySession)?.accessToken}`,
+      ThirdParty: user.user.ThirdParty,
+    },
+  };
+
   //UseEffects
   useEffect(() => {
     retrievePeopleToFollow();
@@ -36,7 +43,11 @@ export default function FollowList() {
         Id: user.user.Id,
       };
 
-      const response = await apiClient.post("/getPeopleToFollow", postData);
+      const response = await apiClient.post(
+        "/getPeopleToFollow",
+        postData,
+        config
+      );
       setToFollow(response.data);
     } catch (error) {
       console.error("Error loading people to follow");
@@ -65,7 +76,11 @@ export default function FollowList() {
             FollowerId: userId,
           };
 
-          const response = await apiClient.post("/addtofollowerList", postData);
+          const response = await apiClient.post(
+            "/addtofollowerList",
+            postData,
+            config
+          );
           setToFollow(response.data);
         } catch (error) {
           console.error("Error adding people to followlist");
