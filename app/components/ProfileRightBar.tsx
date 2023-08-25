@@ -82,12 +82,8 @@ const ProfileRightBar = () => {
   //Functions
 
   const retrievefollowing = async () => {
-    const postData = {
-      Id: user.user.Id,
-      Page: followingPage,
-    };
     try {
-      const response = await apiClient.post("/getFollowing", postData,config);
+      const response = await apiClient.get(`/getFollowing?Id=${user.user.Id}&Page=${followingPage}`,config);
       setFollowings((prevFollowings) => {
         if (prevFollowings) {
           return [...prevFollowings, ...response.data.Following];
@@ -108,12 +104,8 @@ const ProfileRightBar = () => {
   };
 
   const retrievefollowers = async () => {
-    const postData = {
-      Id: user.user.Id,
-      Page: followerPage,
-    };
     try {
-      const response = await apiClient.post("/getFollowers", postData,config);
+      const response = await apiClient.get(`/getFollowers?Id=${user.user.Id}&Page=${followerPage}`,config);
       setFollowers((prevFollowers) => {
         if (prevFollowers) {
           return [...prevFollowers, ...response.data.Followers];
@@ -127,22 +119,16 @@ const ProfileRightBar = () => {
   };
 
   const getCountofFollowers = async () => {
-    const postData = {
-      Id: user.user.Id,
-    };
     try {
-      const response = await apiClient.post("/getTotalFollowers", postData,config);
+      const response = await apiClient.get(`/getTotalFollowers?Id=${user.user.Id}`,config);
       setTotalFollowers(response.data.Count);
     } catch (error) {
       console.error("Error while getting followers count");
     }
   };
   const getCountofFollowings = async () => {
-    const postData = {
-      Id: user.user.Id,
-    };
     try {
-      const response = await apiClient.post("/getTotalFollowings", postData,config);
+      const response = await apiClient.get(`/getTotalFollowings?Id=${user.user.Id}`,config);
       setTotalFollowings(response.data.Count);
     } catch (error) {
       console.error("Error while getting followers count");
@@ -157,12 +143,8 @@ const ProfileRightBar = () => {
   };
 
   const handleUnfollow = async (userId: string) => {
-    const postData = {
-      UserId: user.user.Id,
-      FollowerId: userId,
-    };
     try {
-      const response = await apiClient.post("/deleteFollower", postData,config);
+      const response = await apiClient.delete(`/deleteFollower?UserId=${user.user.Id}&FollowerId=${userId}`,config);
 
       if (response.status === 200) {
         setFollowings(

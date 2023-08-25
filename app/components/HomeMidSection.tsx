@@ -79,15 +79,9 @@ const homeMidSection = () => {
 
   const retrieveTweets = async () => {
     setLoading(true);
-    const postData = {
-      Id: user.user.Id,
-      Page: page,
-    };
-
     try {
-      const response = await apiClient.post(
-        "/getFollowersTweet",
-        postData,
+      const response = await apiClient.get(
+        `/getFollowersTweet?Id=${user.user.Id}&Page=${page}`,
         config
       );
       setTweets((oldTweets) =>
@@ -193,12 +187,8 @@ const homeMidSection = () => {
     }
   };
   const deleteTweet = async (id: number) => {
-    const postData = {
-      TweetId: id,
-    };
-
     try {
-      const response = await apiClient.post("/deleteTweet", postData, config);
+      const response = await apiClient.delete(`/deleteTweet?TweetId=${id}`,config);
 
       setTweets((oldTweets) =>
         oldTweets ? oldTweets.filter((tweet) => tweet.Id !== id) : []

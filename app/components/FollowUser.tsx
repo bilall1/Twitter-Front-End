@@ -39,15 +39,7 @@ export default function FollowList() {
   //Functions
   const retrievePeopleToFollow = async () => {
     try {
-      const postData = {
-        Id: user.user.Id,
-      };
-
-      const response = await apiClient.post(
-        "/getPeopleToFollow",
-        postData,
-        config
-      );
+      const response = await apiClient.get(`/getPeopleToFollow?Id=${user.user.Id}`,config);
       setToFollow(response.data);
     } catch (error) {
       console.error("Error loading people to follow");

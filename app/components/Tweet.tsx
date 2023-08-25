@@ -91,13 +91,8 @@ const Tweet: React.FC<ChildProps> = ({
   //Functions
 
   const loadComments = async () => {
-    const postData = {
-      TweetId: TweetId,
-      Limit: limit,
-    };
-
     try {
-      const response = await apiClient.post("/showCommentsOnTweet", postData,config);
+      const response = await apiClient.get(`/showCommentsOnTweet?TweetId=${TweetId}&Limit=${limit}`,config);
 
       if (response.data.Comments) {
         setCommentOnTweets(response.data.Comments);
@@ -137,12 +132,8 @@ const Tweet: React.FC<ChildProps> = ({
   };
 
   const ifLiked = async () => {
-    const postData = {
-      TweetId: TweetId,
-      UserId: user.user.Id,
-    };
     try {
-      const response = await apiClient.post("/getIfTweetLiked", postData,config);
+      const response = await apiClient.get(`/getIfTweetLiked?TweetId=${TweetId}&UserId=${user.user.Id}`,config);
       setlikeResponse(response.data.Like);
     } catch (error) {
       console.error("Error getting if liked");
@@ -150,11 +141,8 @@ const Tweet: React.FC<ChildProps> = ({
   };
 
   const getLikes = async () => {
-    const postData = {
-      TweetId: TweetId,
-    };
     try {
-      const response = await apiClient.post("/getLikesOnTweet", postData,config);
+      const response = await apiClient.get(`/getLikesOnTweet?TweetId=${TweetId}`,config);
       settotalLikes(response.data.Count);
     } catch (error) {
       console.error("Error getting likes on tweets");
@@ -162,13 +150,8 @@ const Tweet: React.FC<ChildProps> = ({
   };
 
   const getCommentCount = async () => {
-    const postData = {
-      TweetId: TweetId,
-    };
     try {
-      const response = await apiClient.post(
-        "/getTotalCommentOnTweet",
-        postData,
+      const response = await apiClient.get(`/getTotalCommentOnTweet?TweetId=${TweetId}`,
         config
       );
       settotalComments(response.data.Count);

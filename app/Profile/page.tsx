@@ -35,8 +35,8 @@ const Profile = () => {
   });
   const userEmail = session?.user?.email || "invalid";
 
-   //Header
-   const config = {
+  //Header
+  const config = {
     headers: {
       Authorization: `Bearer ${(session as MySession)?.accessToken}`,
       ThirdParty: user.user.ThirdParty,
@@ -123,7 +123,11 @@ const Profile = () => {
         OldPassword: passwordForm.OldPassword,
         NewPassword: passwordForm.NewPassword,
       };
-      const response = await apiClient.post("/updateUserPassword", postData,config);
+      const response = await apiClient.put(
+        "/updateUserPassword",
+        postData,
+        config
+      );
 
       if (response.data.update == 0) {
         setPasswordValid("Old Password Does'nt Match. Try Again!!");
@@ -135,7 +139,9 @@ const Profile = () => {
     }
   };
 
-  const handlePasswordFormUpdate = (e: { target: { name: any; value: any } }) => {
+  const handlePasswordFormUpdate = (e: {
+    target: { name: any; value: any };
+  }) => {
     setPasswordForm({ ...passwordForm, [e.target.name]: e.target.value });
   };
 
@@ -215,7 +221,11 @@ const Profile = () => {
         D_o_b: formData.D_o_b,
       };
 
-      const response = await apiClient.post("/updateUserData", postData,config);
+      const response = await apiClient.put(
+        "/updateUserData",
+        postData,
+        config
+      );
       dispatch(fetchUsers(userEmail));
     } catch (error) {
       console.error("Error while retrieving tweets:");
@@ -224,12 +234,9 @@ const Profile = () => {
   };
 
   const retrieveTweets = async () => {
-    const postData = {
-      Email: userEmail,
-      Page: page,
-    };
     try {
-      const response = await apiClient.post("/getTweets", postData,config);
+      const response = await apiClient.get(`/getTweets?Email=${userEmail}&Page=${page}`, config);
+
       setTweets((oldTweets) =>
         oldTweets
           ? [...oldTweets, ...response.data.Tweets]
@@ -252,7 +259,7 @@ const Profile = () => {
     };
 
     try {
-      const response = await apiClient.post("/deleteTweet", postData,config);
+      const response = await apiClient.post("/deleteTweet", postData, config);
 
       setTweets((oldTweets) =>
         oldTweets ? oldTweets.filter((tweet) => tweet.Id !== id) : []
@@ -361,7 +368,11 @@ const Profile = () => {
                 <div className="bg-white p-6 rounded-lg shadow-lg">
                   <div className="flex-col">
                     <button onClick={handleClosePasswordModal}>
-                      <Image src={cross} alt="Cross Icon" className="h-8 w-8 ml-96" />
+                      <Image
+                        src={cross}
+                        alt="Cross Icon"
+                        className="h-8 w-8 ml-96"
+                      />
                     </button>
                   </div>
 
@@ -462,7 +473,11 @@ const Profile = () => {
                 <div className="bg-white p-6 rounded-lg shadow-lg">
                   <div className="flex-col">
                     <button onClick={handleClosePersonalInfoModal}>
-                      <Image src={cross} alt="Cross Icon" className="h-8 w-8 ml-96" />
+                      <Image
+                        src={cross}
+                        alt="Cross Icon"
+                        className="h-8 w-8 ml-96"
+                      />
                     </button>
                   </div>
 
@@ -510,9 +525,7 @@ const Profile = () => {
                     </h2>
                   </div>
 
-                  <p className="text-lg text-gray-600 m-2">
-                    {user.user.Email}
-                  </p>
+                  <p className="text-lg text-gray-600 m-2">{user.user.Email}</p>
 
                   <span className="flex m-2">
                     <p className="text-lg text-gray-600 font-bold">
