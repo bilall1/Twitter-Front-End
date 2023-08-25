@@ -225,9 +225,7 @@ const homeMidSection = () => {
 
   return (
     <div className="w-full h-full flex flex-col pt-16">
-      <div>
-        <h1 className="text-3xl text-gray-900 dark:text-white px-2">Twitter</h1>
-      </div>
+      <h1 className="text-3xl text-gray-900 dark:text-white px-2">Twitter</h1>
 
       <div className="w-9/12 flex py-2 px-2">
         <div className="flex flex-col justify-between w-full mr-2">
@@ -269,13 +267,11 @@ const homeMidSection = () => {
                   />
                 </button>
 
-                {imageSet ? (
+                {imageSet && (
                   <img
                     src={URL.createObjectURL(image)}
                     className="rounded-3xl"
                   />
-                ) : (
-                  <></>
                 )}
               </div>
             ) : (
@@ -308,7 +304,7 @@ const homeMidSection = () => {
 
       <div></div>
 
-      {requestComplete ? (
+      {requestComplete && (
         <div className="w-9/12 flex items-center justify-center">
           <ThreeDots
             height="80"
@@ -320,8 +316,6 @@ const homeMidSection = () => {
             visible={true}
           />
         </div>
-      ) : (
-        <></>
       )}
 
       <div className="py-4 px-2">
