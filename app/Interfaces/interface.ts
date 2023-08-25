@@ -1,3 +1,5 @@
+import { Session } from "next-auth";
+
 export interface Tweet {
   Id: number;
   Content: string;
@@ -27,19 +29,22 @@ export interface TweetUser {
 }
 
 export interface TweetComments {
-    Id: number;
-    TweetId: number;
-    UserId: number;
-    TweetComment: string;
-    Email: string;
-    FirstName: string;
-    LastName: string;
-    Profile: string;
-  }
+  Id: number;
+  TweetId: number;
+  UserId: number;
+  TweetComment: string;
+  Email: string;
+  FirstName: string;
+  LastName: string;
+  Profile: string;
+}
 
-  export interface TweetInterface {
-    Id: number;
-    Content: string;
-    Link: string;
-  }
-  
+export interface TweetInterface {
+  Id: number;
+  Content: string;
+  Link: string;
+}
+
+export interface MySession extends Session {
+  accessToken: string;
+}

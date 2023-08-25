@@ -12,19 +12,17 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 //Images
 import Image from "next/image";
 import cross from "../assets/cross.png";
-import Resizer from "react-image-file-resizer";
 import { ThreeDots } from "react-loader-spinner";
 import dummy from "../assets/dummy.png";
 
 //Interfaces
-import {TweetUser} from "../Interfaces/interface"
+import { MySession, TweetUser } from "../Interfaces/interface";
 
 //Shared
-import {genRandonString} from "../Shared/sharedFunctions"
-import {resizeFile} from "../Shared/sharedFunctions"
+import { genRandonString } from "../Shared/sharedFunctions";
+import { resizeFile } from "../Shared/sharedFunctions";
 
 const homeMidSection = () => {
-
   //Redux store
   const user = useAppSelector((state) => state.user);
 
@@ -49,6 +47,14 @@ const homeMidSection = () => {
     required: true,
   });
   const userEmail = session?.user?.email || "invalid";
+
+  //Header
+  const config = {
+    headers: {
+      Authorization: `Bearer ${(session as MySession)?.accessToken}`,
+      ThirdParty: user.user.ThirdParty,
+    },
+  };
 
   //useEffects
 
@@ -77,8 +83,13 @@ const homeMidSection = () => {
       Id: user.user.Id,
       Page: page,
     };
+
     try {
-      const response = await apiClient.post("/getFollowersTweet", postData);
+      const response = await apiClient.post(
+        "/getFollowersTweet",
+        postData,
+        config
+      );
       setTweets((oldTweets) =>
         oldTweets
           ? [...oldTweets, ...response.data.Tweets]
@@ -103,7 +114,6 @@ const homeMidSection = () => {
     setContent(value);
   };
 
-
   const handleSubmit = async (e: any) => {
     setImageSet(false);
     setRequestComplete(true);
@@ -118,7 +128,6 @@ const homeMidSection = () => {
           .then(() => {
             getDownloadURL(imageRef)
               .then(async (url) => {
-                console.log("url: ", url);
                 if (url) {
                   setUrl(url);
 
@@ -127,7 +136,12 @@ const homeMidSection = () => {
                     Content: content,
                     Link: url,
                   };
-                  const response = await apiClient.post("/postTweet", postData);
+
+                  const response = await apiClient.post(
+                    "/postTweet",
+                    postData,
+                    config
+                  );
 
                   var object: TweetUser = {
                     Id: response.data.Tweet.Id,
@@ -159,7 +173,7 @@ const homeMidSection = () => {
           Content: content,
           Link: null,
         };
-        const response = await apiClient.post("/postTweet", postData);
+        const response = await apiClient.post("/postTweet", postData, config);
 
         var object: TweetUser = {
           Id: response.data.Tweet.Id,
@@ -172,6 +186,7 @@ const homeMidSection = () => {
         };
         setTweets((oldTweets) => (oldTweets ? [object, ...oldTweets] : null));
         setReloading(true);
+        setRequestComplete(false);
       }
     } catch (error) {
       console.error("Error posting content");
@@ -183,7 +198,7 @@ const homeMidSection = () => {
     };
 
     try {
-      const response = await apiClient.post("/deleteTweet", postData);
+      const response = await apiClient.post("/deleteTweet", postData, config);
 
       setTweets((oldTweets) =>
         oldTweets ? oldTweets.filter((tweet) => tweet.Id !== id) : []
@@ -193,8 +208,6 @@ const homeMidSection = () => {
       console.error("Error while retrieving home tweets:");
     }
   };
-
-
 
   const handleImageChange = async (e: any) => {
     if (e.target.files[0]) {
@@ -212,11 +225,7 @@ const homeMidSection = () => {
 
   return (
     <div className="w-full h-full flex flex-col pt-16">
-      <div>
-        <h1 className="text-3xl text-gray-900 dark:text-white px-2">
-          Twitter
-        </h1>
-      </div>
+      <h1 className="text-3xl text-gray-900 dark:text-white px-2">Twitter</h1>
 
       <div className="w-9/12 flex py-2 px-2">
         <div className="flex flex-col justify-between w-full mr-2">
@@ -258,13 +267,11 @@ const homeMidSection = () => {
                   />
                 </button>
 
-                {imageSet ? (
+                {imageSet && (
                   <img
                     src={URL.createObjectURL(image)}
                     className="rounded-3xl"
                   />
-                ) : (
-                  <></> 
                 )}
               </div>
             ) : (
@@ -297,7 +304,7 @@ const homeMidSection = () => {
 
       <div></div>
 
-      {requestComplete ? (
+      {requestComplete && (
         <div className="w-9/12 flex items-center justify-center">
           <ThreeDots
             height="80"
@@ -309,8 +316,6 @@ const homeMidSection = () => {
             visible={true}
           />
         </div>
-      ) : (
-        <></> 
       )}
 
       <div className="py-4 px-2">
@@ -339,7 +344,6 @@ const homeMidSection = () => {
           <div>Loading...</div>
         )}
       </div>
-
     </div>
   );
 };

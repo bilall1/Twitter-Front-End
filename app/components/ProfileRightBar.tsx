@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import dummy from "../assets/dummy.png";
 import { useAppSelector } from "../Redux/hooks";
 
-import {User} from "../Interfaces/interface"
+import {MySession, User} from "../Interfaces/interface"
 
 const ProfileRightBar = () => {
   //Redux store
@@ -31,6 +31,14 @@ const ProfileRightBar = () => {
   //Div References
   const followingRef = useRef<HTMLDivElement | null>(null);
   const followerRef = useRef<HTMLDivElement | null>(null);
+
+  //Header
+  const config = {
+    headers: {
+      Authorization: `Bearer ${(session as MySession)?.accessToken}`,
+      ThirdParty: user.user.ThirdParty,
+    },
+  };
 
   //UseEffects
 
@@ -79,7 +87,7 @@ const ProfileRightBar = () => {
       Page: followingPage,
     };
     try {
-      const response = await apiClient.post("/getFollowing", postData);
+      const response = await apiClient.post("/getFollowing", postData,config);
       setFollowings((prevFollowings) => {
         if (prevFollowings) {
           return [...prevFollowings, ...response.data.Following];
@@ -105,7 +113,7 @@ const ProfileRightBar = () => {
       Page: followerPage,
     };
     try {
-      const response = await apiClient.post("/getFollowers", postData);
+      const response = await apiClient.post("/getFollowers", postData,config);
       setFollowers((prevFollowers) => {
         if (prevFollowers) {
           return [...prevFollowers, ...response.data.Followers];
@@ -123,7 +131,7 @@ const ProfileRightBar = () => {
       Id: user.user.Id,
     };
     try {
-      const response = await apiClient.post("/getTotalFollowers", postData);
+      const response = await apiClient.post("/getTotalFollowers", postData,config);
       setTotalFollowers(response.data.Count);
     } catch (error) {
       console.error("Error while getting followers count");
@@ -134,7 +142,7 @@ const ProfileRightBar = () => {
       Id: user.user.Id,
     };
     try {
-      const response = await apiClient.post("/getTotalFollowings", postData);
+      const response = await apiClient.post("/getTotalFollowings", postData,config);
       setTotalFollowings(response.data.Count);
     } catch (error) {
       console.error("Error while getting followers count");
@@ -154,7 +162,7 @@ const ProfileRightBar = () => {
       FollowerId: userId,
     };
     try {
-      const response = await apiClient.post("/deleteFollower", postData);
+      const response = await apiClient.post("/deleteFollower", postData,config);
 
       if (response.status === 200) {
         setFollowings(
