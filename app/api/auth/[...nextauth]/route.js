@@ -12,12 +12,8 @@ const handler = NextAuth({
     CredentialsProvider({
       name: "Credentials",
       async authorize(credentials, req) {
-        const postData = {
-          Email: credentials.email,
-          Password: credentials.password,
-        };
-
-        const response = await apiClient.post("/validateUser", postData);
+        
+        const response = await apiClient.get(`/validateUser?Email=${credentials.email}&Password=${credentials.password}`);
 
         if (response) {
           return {
@@ -61,7 +57,7 @@ const handler = NextAuth({
         if (account.type != "credentials") {
           token.accessToken = account.id_token;
         } else {
-          const response = await apiClient.post("/generateToken", user?.email);
+          const response = await apiClient.get(`/generateToken?Email=${user?.email}`);
           token.accessToken = response.data.token;
         }
       }
