@@ -47,7 +47,7 @@ const MessageMidSection = () => {
         config
       );
       setConversations(response.data.conversations);
-      console.log(response.data.conversations);
+      console.log(response.data.conversations)
     } catch (e) {
       console.log("Error getting conversations");
     }
@@ -55,7 +55,7 @@ const MessageMidSection = () => {
 
   useEffect(() => {
     GetConversations();
-  }, []);
+  }, [reloadChat]);
 
   const GetMessages = async () => {
     try {
@@ -95,7 +95,38 @@ const MessageMidSection = () => {
     setChatuser(conversation);
   }
 
-  function handleUserClick(newUser: any) {
+  function handleUserClick(clickedUser: User) {
+
+    setChatuser(prevchatuser => {
+      if (!prevchatuser) {
+        return {
+          UserId: Number(clickedUser.Id),
+          UserEmail: clickedUser.Email, // Add a default value or appropriate value
+          UserFirstName: clickedUser.FirstName,
+          UserLastName: clickedUser.LastName,
+          UserProfile: clickedUser.Profile,
+          Id: 0, 
+          Participant1: 0, 
+          Participant2: 0,
+          LastChat: '',
+          LastMessage: '',
+        };
+      }
+      return {
+        ...prevchatuser,
+        UserId: Number(clickedUser.Id),
+          UserEmail: clickedUser.Email, // Add a default value or appropriate value
+          UserFirstName: clickedUser.FirstName,
+          UserLastName: clickedUser.LastName,
+          UserProfile: clickedUser.Profile,
+          Id: 0, 
+          Participant1: 0, 
+          Participant2: 0,
+          LastChat: '',
+          LastMessage: '',
+      };
+    }); 
+
     setNewMessagePane(false);
   }
 
@@ -212,13 +243,23 @@ const MessageMidSection = () => {
                       onClick={() => handleConversationSelect(conversation)}
                     >
                       <div className="flex mt-2 pt-2 pb-2 border-b-2">
-                        <Image
-                          src={dummy}
-                          alt="User avatar"
-                          className="w-8 h-8 rounded-full  mt-2"
-                          width={100}
-                          height={100}
-                        />
+                        {conversation.UserProfile ? (
+                          <Image
+                            src={conversation.UserProfile}
+                            alt="User avatar"
+                            className="w-8 h-8 rounded-full  mt-2"
+                            width={100}
+                            height={100}
+                          />
+                        ) : (
+                          <Image
+                            src={dummy}
+                            alt="User avatar"
+                            className="w-8 h-8 rounded-full  mt-2"
+                            width={100}
+                            height={100}
+                          />
+                        )}
 
                         <div className="w-4/5 ">
                           <div className="flex flex-col px-4 pt-2">
