@@ -32,7 +32,7 @@ export default function SideBar() {
             </Link>
 
             <Link
-              href="/"
+              href="../Messages"
               className="pl-3 pt-5 flex transform transition-all duration-500 ease-in-out hover:scale-105"
             >
               <Image
