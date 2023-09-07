@@ -1,11 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import NewMessage from "../assets/newMsg.png";
-import Image from "next/image";
-import dummy from "../assets/dummy.png";
 import { useAppSelector } from "../Redux/hooks";
-import SentMsg from "../assets/sendMsg.png";
 import apiClient from "../api/api";
+//Session
 import {
   MySession,
   User,
@@ -13,23 +10,18 @@ import {
   Conversation,
 } from "../Interfaces/interface";
 import { useSession } from "next-auth/react";
+//Images
+import SentMsg from "../assets/sendMsg.png";
+import NewMessage from "../assets/newMsg.png";
+import Image from "next/image";
+import dummy from "../assets/dummy.png";
 import cross from "../assets/cross.png";
+import chatIcon from "../assets/chat.png";
 
 const MessageMidSection = () => {
   //Redux store
   const user = useAppSelector((state) => state.user);
-  //Session
-  const { data: session } = useSession({
-    required: true,
-  });
-  const userEmail = session?.user?.email || "invalid";
-  const config = {
-    headers: {
-      Authorization: `Bearer ${(session as MySession)?.accessToken}`,
-      ThirdParty: user.user.ThirdParty,
-    },
-  };
-
+  //Messaging
   const [newMessagePane, setNewMessagePane] = useState(false);
   const [otherUsers, setOtherUsers] = useState<User[] | null>(null);
   const [chatuser, setChatuser] = useState<Conversation | null>(null);
@@ -39,7 +31,29 @@ const MessageMidSection = () => {
     null
   );
   const [reloadChat, setReloadChat] = useState(false);
+  //Session
+  const { data: session } = useSession({
+    required: true,
+  });
+  const userEmail = session?.user?.email || "invalid";
+  //Configuration
+  const config = {
+    headers: {
+      Authorization: `Bearer ${(session as MySession)?.accessToken}`,
+      ThirdParty: user.user.ThirdParty,
+    },
+  };
 
+  //UseEffects
+  useEffect(() => {
+    GetConversations();
+  }, [reloadChat]);
+
+  useEffect(() => {
+    GetMessages();
+  }, [chatuser, reloadChat]);
+
+  //Functions
   const GetConversations = async () => {
     try {
       const response = await apiClient.get(
@@ -47,15 +61,11 @@ const MessageMidSection = () => {
         config
       );
       setConversations(response.data.conversations);
-      console.log(response.data.conversations)
+      console.log(response.data.conversations);
     } catch (e) {
       console.log("Error getting conversations");
     }
   };
-
-  useEffect(() => {
-    GetConversations();
-  }, [reloadChat]);
 
   const GetMessages = async () => {
     try {
@@ -68,10 +78,6 @@ const MessageMidSection = () => {
       console.log("Error getting messages");
     }
   };
-
-  useEffect(() => {
-    GetMessages();
-  }, [chatuser, reloadChat]);
 
   const handleNewMessageButton = async () => {
     setNewMessagePane(true);
@@ -96,37 +102,35 @@ const MessageMidSection = () => {
   }
 
   function handleUserClick(clickedUser: User) {
-
-    setChatuser(prevchatuser => {
+    setChatuser((prevchatuser) => {
       if (!prevchatuser) {
         return {
           UserId: Number(clickedUser.Id),
-          UserEmail: clickedUser.Email, // Add a default value or appropriate value
+          UserEmail: clickedUser.Email,
           UserFirstName: clickedUser.FirstName,
           UserLastName: clickedUser.LastName,
           UserProfile: clickedUser.Profile,
-          Id: 0, 
-          Participant1: 0, 
+          Id: 0,
+          Participant1: 0,
           Participant2: 0,
-          LastChat: '',
-          LastMessage: '',
+          LastChat: "",
+          LastMessage: "",
         };
       }
       return {
         ...prevchatuser,
         UserId: Number(clickedUser.Id),
-          UserEmail: clickedUser.Email, // Add a default value or appropriate value
-          UserFirstName: clickedUser.FirstName,
-          UserLastName: clickedUser.LastName,
-          UserProfile: clickedUser.Profile,
-          Id: 0, 
-          Participant1: 0, 
-          Participant2: 0,
-          LastChat: '',
-          LastMessage: '',
+        UserEmail: clickedUser.Email,
+        UserFirstName: clickedUser.FirstName,
+        UserLastName: clickedUser.LastName,
+        UserProfile: clickedUser.Profile,
+        Id: 0,
+        Participant1: 0,
+        Participant2: 0,
+        LastChat: "",
+        LastMessage: "",
       };
-    }); 
-
+    });
     setNewMessagePane(false);
   }
 
@@ -293,7 +297,7 @@ const MessageMidSection = () => {
       </div>
 
       <div className="w-3/5 mt-20 flex flex-col justify-between m-10 border-l-2">
-        {chatuser && (
+        {chatuser ? (
           <>
             <div>
               <div className="flex justify-center">
@@ -322,10 +326,6 @@ const MessageMidSection = () => {
                   <h2 className="text-m text-gray-600 text-opacity-60 ">
                     {chatuser.UserEmail}
                   </h2>
-
-                  {/* <h2 className="text-sm font-semibold text-gray-600 text-opacity-60 mt-1">
-                    4,300 Followers(R)
-                  </h2> */}
                 </div>
               </div>
 
@@ -382,6 +382,14 @@ const MessageMidSection = () => {
               />
             </div>
           </>
+        ) : (
+          <div className="flex justify-center items-center h-full">
+            <div className="flex flex-col items-center">
+              <Image src={chatIcon} alt="User avatar" className="w-24 h-24" />
+
+              <h1 className=" font-mono text-xl ">Select a conversation</h1>
+            </div>
+          </div>
         )}
       </div>
     </div>
