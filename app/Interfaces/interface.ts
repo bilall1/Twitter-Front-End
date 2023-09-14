@@ -72,3 +72,10 @@ export interface Conversation {
   LastChat: string;
   LastMessage: string;
 }
+
+export interface UserStatus {
+  Id: number;
+  UserId: number;
+  LastActive: string;
+  Status: string;
+}

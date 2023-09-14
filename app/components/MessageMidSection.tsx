@@ -8,6 +8,7 @@ import {
   User,
   Message,
   Conversation,
+  UserStatus,
 } from "../Interfaces/interface";
 import { useSession } from "next-auth/react";
 //Images
@@ -16,7 +17,11 @@ import NewMessage from "../assets/newMsg.png";
 import Image from "next/image";
 import dummy from "../assets/dummy.png";
 import cross from "../assets/cross.png";
+import Online from "../assets/online.png";
+import Offline from "../assets/offline.png"
 import chatIcon from "../assets/chat.png";
+import { useSocketHook } from "../hooks/useSocketHook";
+import { Socket } from "net";
 
 const MessageMidSection = () => {
   //Redux store
@@ -30,6 +35,7 @@ const MessageMidSection = () => {
   const [conversations, setConversations] = useState<Conversation[] | null>(
     null
   );
+  const [allUserStatus, SetAllUserStatus] = useState<UserStatus[] | null>(null);
   const [reloadChat, setReloadChat] = useState(false);
   //Session
   const { data: session } = useSession({
@@ -44,6 +50,9 @@ const MessageMidSection = () => {
     },
   };
 
+  //Socket variable
+  const { socket } = useSocketHook(user.user.Id);
+
   //UseEffects
   useEffect(() => {
     GetConversations();
@@ -54,6 +63,19 @@ const MessageMidSection = () => {
   }, [chatuser, reloadChat]);
 
   //Functions
+  const GetOnlineStatus = async () => {
+    try {
+      const response = await apiClient.get(
+        `/getOnlineStatus?Id=${user.user.Id}`,
+        config
+      );
+      SetAllUserStatus(response.data.status);
+      console.log(response.data.status);
+    } catch (e) {
+      console.log("Error getting online status");
+    }
+  };
+
   const GetConversations = async () => {
     try {
       const response = await apiClient.get(
@@ -61,7 +83,7 @@ const MessageMidSection = () => {
         config
       );
       setConversations(response.data.conversations);
-      console.log(response.data.conversations);
+      GetOnlineStatus();
     } catch (e) {
       console.log("Error getting conversations");
     }
@@ -139,18 +161,65 @@ const MessageMidSection = () => {
     setContent(value);
   };
 
+  socket.onmessage = function (e) {
+    console.log("Message : " + e.data + "\n");
+    var responseObject = JSON.parse(e.data);
+
+    setChat((oldChat) =>
+      oldChat ? [...oldChat, responseObject] : responseObject
+    );
+  };
+
+  
+
+  function getCurrentTimestamp() {
+    const date = new Date();
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // month is 0-indexed
+    const day = String(date.getDate()).padStart(2, "0");
+
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+
+    const milliseconds = String(date.getMilliseconds()).padStart(6, "0"); // extended to microsecond precision (though JavaScript does not natively support microseconds)
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+  }
+
+  const sendMessageThroughSocket = () => {
+    if (socket) {
+      const messageData = {
+        SenderId: user.user.Id,
+        RecieverId: chatuser?.UserId,
+        Content: content,
+        CreatedAt: getCurrentTimestamp(),
+      };
+      socket.send(JSON.stringify(messageData));
+    } else {
+      console.log("Not connected!");
+    }
+  };
+
   const handleSendMessage = async () => {
     const postData = {
       SenderId: user.user.Id,
-      RecieverId: chatuser?.UserId,
+      RecieverId: chatuser?.UserId || 0,
       MessageType: "text",
       Status: "sent",
-      content: content,
+      Content: content,
+      CreatedAt: getCurrentTimestamp(),
+      Id: 0,
     };
 
     try {
+      sendMessageThroughSocket();
       const response = await apiClient.post("/sentMessage", postData, config);
-      setReloadChat(!reloadChat);
+      //setReloadChat(!reloadChat);
+
+      setChat((oldChat) => [...(oldChat || []), postData]);
+
       setContent("");
     } catch (error) {
       console.log("Error sending messages");
@@ -240,8 +309,13 @@ const MessageMidSection = () => {
                 index: React.Key | null | undefined
               ) => {
                 const date = new Date(conversation.LastChat);
+
+                const status = allUserStatus?.find(
+                  (status) => status.UserId === conversation.UserId
+                );
+
                 return (
-                  <>
+                  <div key={conversation.Id}>
                     <div
                       className="pt-4"
                       onClick={() => handleConversationSelect(conversation)}
@@ -273,9 +347,26 @@ const MessageMidSection = () => {
                                 {conversation.UserLastName}
                               </h2>
 
+                              {status?.Status=="online" ?
+                              <Image src={Online} 
+                                 className="w-4 h-4 rounded-full  mt-2" 
+                                   width={100}
+                                   height={100}
+                                alt="Online Icon" />
+
+                                :
+                                <Image src={Offline} 
+                                 className="w-4 h-4 rounded-full  mt-2" 
+                                   width={100}
+                                   height={100}
+                                alt="Online Icon" />
+                              }
+
+                                
                               <span className="pl-4 text-m text-gray-600">
                                 {date.getHours()}:{date.getMinutes()}
                               </span>
+                             
                             </div>
 
                             <h2 className=" text-xs text-gray-600 text-opacity-60 ">
@@ -289,7 +380,7 @@ const MessageMidSection = () => {
                         </div>
                       </div>
                     </div>
-                  </>
+                  </div>
                 );
               }
             )}
