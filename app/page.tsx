@@ -44,7 +44,6 @@ export default function Home() {
   //Functions
 
   useEffect(() => {
-
     // This function will be called when the user leaves the page
     const handleUnload = async () => {
       await UpdateUserStatus("offline");

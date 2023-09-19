@@ -186,7 +186,7 @@ const MessageMidSection = () => {
 
   socket.onmessage = function (e) {
     var responseObject = JSON.parse(e.data);
-    let responseAsArray=[responseObject]
+    let responseAsArray = [responseObject];
     setChat((oldChat) =>
       oldChat ? [...oldChat, responseObject] : responseAsArray
     );
