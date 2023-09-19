@@ -170,12 +170,10 @@ const ProfileRightBar = () => {
           </div>
 
           <div
-            className="pt-2"
+            className="pt-2 overflow-y-scroll no-scrollbar"
             ref={followingRef}
             style={{
               height: "300px",
-              overflow: "auto",
-              scrollbarWidth: "none",
             }}
           >
             {followings &&
@@ -224,12 +222,10 @@ const ProfileRightBar = () => {
           </div>
 
           <div
-            className="pt-2"
+            className="pt-2 overflow-y-scroll no-scrollbar"
             ref={followerRef}
             style={{
-              height: "300px",
-              overflow: "auto",
-              scrollbarWidth: "none",
+              height: "300px"
             }}
           >
             {followers &&

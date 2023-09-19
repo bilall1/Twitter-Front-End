@@ -104,7 +104,37 @@ const Profile = () => {
     setReloading(false);
   }, [tweets]);
 
+  useEffect(() => {
+
+    // This function will be called when the user leaves the page
+    const handleUnload = async () => {
+      await UpdateUserStatus("offline");
+    };
+
+    // Add the event listener when the component mounts
+    window.addEventListener("beforeunload", handleUnload);
+
+    // Remove the event listener when the component unmounts
+    return () => {
+      window.removeEventListener("beforeunload", handleUnload);
+    };
+  }, []);
+
   //Functions
+
+  const UpdateUserStatus = async (status: string) => {
+    const postData = {
+      UserId: user.user.Id,
+      Status: status,
+    };
+
+    try {
+      const response = await apiClient.put("/updateStatus", postData, config);
+    } catch (error) {
+      console.log("Error setting user status");
+    }
+  };
+
 
   const handleClosePersonalInfoModal = () => {
     setEditing(false);
