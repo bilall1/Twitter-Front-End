@@ -614,7 +614,7 @@ const Profile = () => {
                 )}
             </div>
           ) : (
-            <div>Loading...</div>
+            <></>
           )}
         </div>
       </div>

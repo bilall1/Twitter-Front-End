@@ -65,14 +65,11 @@ const MessageMidSection = () => {
   }, [chatuser, chatPage]);
 
   useEffect(() => {
-    MessageDivRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "end",
-      });
- 
-  }, [chat]);
-  
-  
+    const div = MessageDivRef.current;
+    if (div) {
+      div.scrollTop = div.scrollHeight;
+    }
+  }, [chat]); // This effect runs whenever the chat array changes.
 
   //Functions
   const GetOnlineStatus = async () => {
@@ -101,8 +98,6 @@ const MessageMidSection = () => {
   };
 
   const GetMessages = async () => {
-    console.log(chatPage);
-
     try {
       const response = await apiClient.get(
         `/getMessages?SenderId=${user.user.Id}&RecieverId=${chatuser?.UserId}&Page=${chatPage}`,
@@ -145,7 +140,9 @@ const MessageMidSection = () => {
   function handleConversationSelect(conversation: any) {
     setChatPage(1);
     setChatuser(conversation);
-    setChat(null);
+    if (conversation.Id != chatuser?.Id) {
+      setChat(null);
+    }
   }
 
   function handleUserClick(clickedUser: User) {
@@ -189,9 +186,9 @@ const MessageMidSection = () => {
 
   socket.onmessage = function (e) {
     var responseObject = JSON.parse(e.data);
-
+    let responseAsArray=[responseObject]
     setChat((oldChat) =>
-      oldChat ? [...oldChat, responseObject] : responseObject
+      oldChat ? [...oldChat, responseObject] : responseAsArray
     );
     setReloadChat(!reloadChat);
   };
@@ -253,7 +250,7 @@ const MessageMidSection = () => {
   return (
     <div className="flex h-screen w-screen font-sans">
       <div className="w-2/5">
-        <div className="fixed w-1/4">
+        <div className="fixed w-1/4 z-20">
           <div className="mt-10 flex justify-between">
             <h1 className="font-semibold text-2xl">Messages</h1>
 
@@ -455,7 +452,10 @@ const MessageMidSection = () => {
               </div>
             </div>
 
-            <div ref={MessageDivRef} className="flex flex-col ml-20 m-10 pb-10 overflow-y-scroll no-scrollbar">
+            <div
+              ref={MessageDivRef}
+              className="flex flex-col ml-20 m-10 pb-10 overflow-y-scroll no-scrollbar"
+            >
               {chat &&
                 chat.map(
                   (message: Message, index: React.Key | null | undefined) => {
