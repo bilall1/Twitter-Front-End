@@ -12,6 +12,7 @@ export interface User {
   LastName: string;
   Followed: boolean;
   Profile: string;
+  Email: string;
 }
 
 export interface UserData {
@@ -47,4 +48,34 @@ export interface TweetInterface {
 
 export interface MySession extends Session {
   accessToken: string;
+}
+
+export interface Message {
+  Id: number;
+  SenderId: number;
+  RecieverId: number;
+  MessageType: string;
+  CreatedAt: string;
+  Status: string;
+  Content: string;
+}
+
+export interface Conversation {
+  UserId: number;
+  UserEmail: string;
+  UserFirstName: string;
+  UserLastName: string;
+  UserProfile: string;
+  Id: number;
+  Participant1: number;
+  Participant2: number;
+  LastChat: string;
+  LastMessage: string;
+}
+
+export interface UserStatus {
+  Id: number;
+  UserId: number;
+  LastActive: string;
+  Status: string;
 }

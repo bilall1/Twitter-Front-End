@@ -104,7 +104,35 @@ const Profile = () => {
     setReloading(false);
   }, [tweets]);
 
+  useEffect(() => {
+    // This function will be called when the user leaves the page
+    const handleUnload = async () => {
+      await UpdateUserStatus("offline");
+    };
+
+    // Add the event listener when the component mounts
+    window.addEventListener("beforeunload", handleUnload);
+
+    // Remove the event listener when the component unmounts
+    return () => {
+      window.removeEventListener("beforeunload", handleUnload);
+    };
+  }, []);
+
   //Functions
+
+  const UpdateUserStatus = async (status: string) => {
+    const postData = {
+      UserId: user.user.Id,
+      Status: status,
+    };
+
+    try {
+      const response = await apiClient.put("/updateStatus", postData, config);
+    } catch (error) {
+      console.log("Error setting user status");
+    }
+  };
 
   const handleClosePersonalInfoModal = () => {
     setEditing(false);
@@ -221,11 +249,7 @@ const Profile = () => {
         D_o_b: formData.D_o_b,
       };
 
-      const response = await apiClient.put(
-        "/updateUserData",
-        postData,
-        config
-      );
+      const response = await apiClient.put("/updateUserData", postData, config);
       dispatch(fetchUsers(userEmail));
     } catch (error) {
       console.error("Error while retrieving tweets:");
@@ -235,7 +259,10 @@ const Profile = () => {
 
   const retrieveTweets = async () => {
     try {
-      const response = await apiClient.get(`/getTweets?Email=${userEmail}&Page=${page}`, config);
+      const response = await apiClient.get(
+        `/getTweets?Email=${userEmail}&Page=${page}`,
+        config
+      );
 
       setTweets((oldTweets) =>
         oldTweets
@@ -584,7 +611,7 @@ const Profile = () => {
                 )}
             </div>
           ) : (
-            <div>Loading...</div>
+            <></>
           )}
         </div>
       </div>

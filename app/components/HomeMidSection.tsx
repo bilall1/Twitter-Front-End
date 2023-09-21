@@ -328,10 +328,10 @@ const homeMidSection = () => {
                   </div>
                 )
               )}
-            {loading && <p>Loading...</p>}
+            {/* {loading && <p>Loading...</p>} */}
           </div>
         ) : (
-          <div>Loading...</div>
+          <></>
         )}
       </div>
     </div>
