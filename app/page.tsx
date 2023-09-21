@@ -75,13 +75,11 @@ export default function Home() {
     const { socket } = useSocketHook(user.user.Id);
 
     socket.onopen = function () {
-      console.log("Status : You CONNECTED\n");
       UpdateUserStatus("online");
     };
 
     socket.onclose = () => {
       UpdateUserStatus("offline");
-      console.log("Disconnected from WebSocket");
     };
   };
 
