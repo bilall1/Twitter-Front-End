@@ -231,12 +231,12 @@ const Tweet: React.FC<ChildProps> = ({
   };
 
   return (
-    <div className="w-9/12 border-2 border-gray-100 mb-2 bg-white">
-      <div className=" flex py-3 justify-between">
+    <div className="lg:w-9/12 md: w-11/12 border-2 border-gray-100 mb-2 bg-white">
+      <div className="flex py-3 justify-between">
         <div className="flex px-2 ">
           {Profile ? (
             <Image
-              className="rounded-full h-12 w-12 ml-2 mt-2 "
+              className="rounded-full lg:h-12 lg:w-12 md:w-9 md:h-9 ml-2 mt-2 "
               src={Profile}
               alt="Profile"
               width={100}
@@ -246,15 +246,15 @@ const Tweet: React.FC<ChildProps> = ({
             <Image
               src={dummy}
               alt="User avatar"
-              className="w-12 h-12 rounded-full ml-2 mt-2"
+              className="lg:w-12 lg:h-12 md:w-9 md:h-9 rounded-full ml-2 mt-2"
             />
           )}
 
-          <div className="flex-col px-4 pt-1">
-            <h2 className="text-2xl ">
+          <div className="flex-col lg:px-4 sm:px-2 pt-1">
+            <h2 className="lg:text-2xl md:text-xl">
               {FirstName} {LastName}
             </h2>
-            <h2 className="text-m text-gray-600 text-opacity-60">{email}</h2>
+            <h2 className="lg:text-m md:text-sm text-gray-600 text-opacity-60">{email}</h2>
           </div>
         </div>
 
@@ -289,7 +289,7 @@ const Tweet: React.FC<ChildProps> = ({
       {user.user.Email === email ? (
         <div>
           {isEditing ? (
-            <div className="py-1 px-20">
+            <div className="py-1 lg:px-20 md:pl-14 md:pr-4">
               <textarea
                 value={editedContent}
                 onChange={handleContentChange}
@@ -304,12 +304,12 @@ const Tweet: React.FC<ChildProps> = ({
               </button>
 
               <div className="py-2">
-                {Link && <img src={Link} className="rounded-3xl " />}
+                {Link && <img src={Link} className="rounded-3xl" />}
               </div>
             </div>
           ) : (
-            <div className="py-1 px-20">
-              <p className="text-lg">{contentOfTweet}</p>
+            <div className="py-1 lg:px-20 md:pl-14 md:pr-4">
+              <p className="lg:text-lg md:text-md">{contentOfTweet}</p>
               <div className="py-2">
                 {Link ? (
                   <img src={Link} className="py-1 rounded-3xl" />
@@ -321,8 +321,8 @@ const Tweet: React.FC<ChildProps> = ({
           )}
         </div>
       ) : (
-        <div className="py-1 px-20">
-          <p className="text-lg">{content}</p>
+        <div className="py-1 lg:px-20 md:pl-14 md:pr-4">
+          <p className="lg:text-lg md:text-md">{content}</p>
 
           <div className="py-2">
             {Link ? <img src={Link} className="py-1 rounded-3xl" /> : <div></div>}
@@ -378,7 +378,7 @@ const Tweet: React.FC<ChildProps> = ({
                       <div></div>
                       {comment.Profile ? (
                         <Image
-                          className="lg:h-8 lg:w-8 h-3 w-3 rounded-full mr-2"
+                          className="h-8 w-8 rounded-full mr-2"
                           src={comment.Profile}
                           alt="Profile"
                           width={100}
@@ -388,7 +388,7 @@ const Tweet: React.FC<ChildProps> = ({
                         <Image
                           src={dummy}
                           alt="User avatar"
-                          className="lg:h-8 lg:w-8 h-3 w-3 rounded-full mr-2"
+                          className="h-8 w-8 rounded-full mr-2"
                         />
                       )}
                       <span className="hidden md:inline-block lg:text-xl">

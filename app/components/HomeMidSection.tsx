@@ -214,10 +214,10 @@ const homeMidSection = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col pt-16">
-      <h1 className="text-3xl text-gray-900 dark:text-white px-2">Twitter</h1>
+    <div className="w-full h-full flex flex-col pt-14 lg:pt-16 md:ml-3 md:pt-8  relative ">
+      <h1 className="hidden sm:block lg:text-3xl md:text-2xl text-gray-900 dark:text-white px-2">Home</h1>
 
-      <div className="w-9/12 flex py-2 px-2">
+      <div className="lg:w-9/12 md:w-11/12 flex py-2 px-2">
         <div className="flex flex-col justify-between w-full mr-2">
           <div className="flex">
             {user.user.Profile ? (
@@ -295,7 +295,7 @@ const homeMidSection = () => {
       <div></div>
 
       {requestComplete && (
-        <div className="w-9/12 flex items-center justify-center">
+        <div className="lg:w-9/12 md:w-11/12 flex items-center justify-center">
           <ThreeDots
             height="80"
             width="80"
