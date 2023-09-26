@@ -21,6 +21,7 @@ import Online from "../assets/online.png";
 import Offline from "../assets/offline.png";
 import chatIcon from "../assets/chat.png";
 import Previous from "../assets/Previous.png";
+import back from "../assets/back.png";
 import { useSocketHook } from "../hooks/useSocketHook";
 import { Socket } from "net";
 
@@ -143,6 +144,7 @@ const MessageMidSection = () => {
     if (conversation.Id != chatuser?.Id) {
       setChat(null);
     }
+    handleClassAddition();
   }
 
   function handleUserClick(clickedUser: User) {
@@ -246,11 +248,31 @@ const MessageMidSection = () => {
       console.log("Error sending messages");
     }
   };
+  const handleClassAddition = async () => {
+    const targetDiv = document.getElementById("targetDiv");
+    targetDiv?.classList.add("hidden");
+    targetDiv?.classList.add("lg:block");
+
+    const targetDiv1 = document.getElementById("chatBox");
+    if (targetDiv1?.classList.contains("hidden")) {
+      targetDiv1?.classList.remove("hidden");
+      targetDiv1?.classList.remove("lg:block");
+    }
+  };
+
+  const handleClassRemoval = async () => {
+    const targetDiv = document.getElementById("targetDiv");
+    targetDiv?.classList.remove("hidden");
+
+    const targetDiv1 = document.getElementById("chatBox");
+    targetDiv1?.classList.add("hidden");
+    targetDiv1?.classList.add("lg:block");
+  };
 
   return (
-    <div className="flex h-screen w-screen font-sans">
-      <div className="w-2/5">
-        <div className="fixed w-1/4 z-20">
+    <div className="flex h-screen w-screen font-sans relative ml-5 lg:ml-0">
+      <div id="targetDiv" className="w-full">
+        <div className="fixed w-full lg:w-1/4">
           <div className="mt-10 flex justify-between">
             <h1 className="font-semibold text-2xl">Messages</h1>
 
@@ -323,7 +345,7 @@ const MessageMidSection = () => {
             </div>
           )}
 
-          <div className="mt-3">
+          <div id="conversationSelect" className=" mt-3">
             {conversations &&
               conversations.map(
                 (
@@ -411,9 +433,15 @@ const MessageMidSection = () => {
         </div>
       </div>
 
-      <div className="w-3/5 mt-20 m-5 border-l-2">
+      <div id="chatBox" className="w-11/12 lg:w-3/5 mt-20 m-5 lg:border-l-2">
         {chatuser ? (
           <div className="flex flex-col relative h-full">
+            <div className="block lg:hidden">
+              <button onClick={handleClassRemoval}>
+                <Image src={back} alt="Back Icon" className="h-8 w-8 ml-10" />
+              </button>
+            </div>
+
             <div className="flex justify-center ">
               <div className="flex flex-col justify-center items-center">
                 {chatuser.UserProfile ? (
@@ -508,7 +536,7 @@ const MessageMidSection = () => {
             </div>
           </div>
         ) : (
-          <div className="flex justify-center items-center h-full">
+          <div className=" justify-center items-center h-full hidden lg:flex">
             <div className="flex flex-col items-center">
               <Image src={chatIcon} alt="User avatar" className="w-24 h-24" />
 
