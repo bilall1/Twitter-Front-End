@@ -12,8 +12,8 @@ import Profile from "../Profile/page";
 
 export default function SideBar() {
   return (
-    <>
-      <div className="sm:block lg:hidden md:hidden fixed left-0 z-10 bg-white w-11/12">
+    <div className="md:w-1/12 lg:w-1/3 relative">
+      <div className="ml-3 sm:block lg:hidden md:hidden fixed top-0 z-30 bg-white w-11/12 py-1">
         <div className="flex justify-between">
           <Link
             href="/"
@@ -134,6 +134,6 @@ export default function SideBar() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
