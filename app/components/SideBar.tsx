@@ -13,11 +13,11 @@ import Profile from "../Profile/page";
 export default function SideBar() {
   return (
     <div className="md:w-1/12 lg:w-1/3 relative">
-      <div className="ml-3 sm:block lg:hidden md:hidden fixed top-0 z-30 bg-white w-11/12 py-1">
+      <div className="ml-3 sm:block lg:hidden md:hidden fixed bottom-0 z-30 bg-white w-11/12 py-1">
         <div className="flex justify-between">
           <Link
             href="/"
-            className="pl-3 pt-5 flex transform transition-all duration-500 ease-in-out hover:scale-105 "
+            className="pl-3 pt-2 flex transform transition-all duration-500 ease-in-out hover:scale-105 "
           >
             <Image className="lg:h-8 lg:w-8 h-6 w-6 mr-2" src={home} alt="" />
             <span className="hidden lg:inline-block lg:text-2xl">Home</span>
@@ -25,7 +25,7 @@ export default function SideBar() {
 
           <Link
             href="../Messages"
-            className="pl-3 pt-5 flex transform transition-all duration-500 ease-in-out hover:scale-105"
+            className="pl-3 pt-2 flex transform transition-all duration-500 ease-in-out hover:scale-105"
           >
             <Image
               className="lg:h-8 lg:w-8 h-6 w-6 mr-2"
@@ -37,7 +37,7 @@ export default function SideBar() {
 
           <button
             onClick={() => signOut()}
-            className="pl-3 pt-5 flex transform transition-all duration-500 ease-in-out hover:scale-105"
+            className="pl-3 pt-2 flex transform transition-all duration-500 ease-in-out hover:scale-105"
           >
             <Image
               className="lg:h-7 lg:w-7 h-6 w-6 mr-2"
@@ -49,7 +49,7 @@ export default function SideBar() {
 
           <Link
             href="../Profile"
-            className="pl-3 pt-5 flex transform transition-all duration-500 ease-in-out hover:scale-105 "
+            className="pl-3 pt-2 flex transform transition-all duration-500 ease-in-out hover:scale-105 "
           >
             <Image
               className="lg:h-8 lg:w-8 h-6 w-6 mr-2"
