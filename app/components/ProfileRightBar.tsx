@@ -5,7 +5,8 @@ import { useSession } from "next-auth/react";
 import dummy from "../assets/dummy.png";
 import { useAppSelector } from "../Redux/hooks";
 
-import {MySession, User} from "../Interfaces/interface"
+import { MySession, User } from "../Interfaces/interface";
+
 
 const ProfileRightBar = () => {
   //Redux store
@@ -52,6 +53,7 @@ const ProfileRightBar = () => {
 
   useEffect(() => {
     getCountofFollowers();
+
     getCountofFollowings();
   }, [reloading]);
 
@@ -83,7 +85,10 @@ const ProfileRightBar = () => {
 
   const retrievefollowing = async () => {
     try {
-      const response = await apiClient.get(`/getFollowing?Id=${user.user.Id}&Page=${followingPage}`,config);
+      const response = await apiClient.get(
+        `/getFollowing?Id=${user.user.Id}&Page=${followingPage}`,
+        config
+      );
       setFollowings((prevFollowings) => {
         if (prevFollowings) {
           return [...prevFollowings, ...response.data.Following];
@@ -105,7 +110,10 @@ const ProfileRightBar = () => {
 
   const retrievefollowers = async () => {
     try {
-      const response = await apiClient.get(`/getFollowers?Id=${user.user.Id}&Page=${followerPage}`,config);
+      const response = await apiClient.get(
+        `/getFollowers?Id=${user.user.Id}&Page=${followerPage}`,
+        config
+      );
       setFollowers((prevFollowers) => {
         if (prevFollowers) {
           return [...prevFollowers, ...response.data.Followers];
@@ -120,7 +128,10 @@ const ProfileRightBar = () => {
 
   const getCountofFollowers = async () => {
     try {
-      const response = await apiClient.get(`/getTotalFollowers?Id=${user.user.Id}`,config);
+      const response = await apiClient.get(
+        `/getTotalFollowers?Id=${user.user.Id}`,
+        config
+      );
       setTotalFollowers(response.data.Count);
     } catch (error) {
       console.error("Error while getting followers count");
@@ -128,7 +139,10 @@ const ProfileRightBar = () => {
   };
   const getCountofFollowings = async () => {
     try {
-      const response = await apiClient.get(`/getTotalFollowings?Id=${user.user.Id}`,config);
+      const response = await apiClient.get(
+        `/getTotalFollowings?Id=${user.user.Id}`,
+        config
+      );
       setTotalFollowings(response.data.Count);
     } catch (error) {
       console.error("Error while getting followers count");
@@ -144,14 +158,17 @@ const ProfileRightBar = () => {
 
   const handleUnfollow = async (userId: string) => {
     try {
-      const response = await apiClient.delete(`/deleteFollower?UserId=${user.user.Id}&FollowerId=${userId}`,config);
+      const response = await apiClient.delete(
+        `/deleteFollower?UserId=${user.user.Id}&FollowerId=${userId}`,
+        config
+      );
 
       if (response.status === 200) {
         setFollowings(
           (prevFollowings) =>
             prevFollowings?.filter((user) => user.Id !== userId) || null
         );
-
+        setFollowingPage((oldPage) => oldPage + 1);
         setReloading(!reloading);
       } else {
         console.error("Error while unfollowing user");
@@ -160,9 +177,10 @@ const ProfileRightBar = () => {
       console.error("Error while unfollowing user");
     }
   };
+  
 
   return (
-    <div className="w-1/3 h-full flex flex-col pt-14 ">
+    <div id="RightBar"className="w-1/2 lg:w-1/3 h-11/12 flex-col pt-14 lg:pt-16 mx-2 md:mx-auto lg:mx-0 md:pt-32">   
       <div className="fixed flex flex-col justify-between">
         <div>
           <div className="border-b-2 border-gray-500 opacity-50 pb-4">
@@ -173,7 +191,7 @@ const ProfileRightBar = () => {
             className="pt-2 overflow-y-scroll no-scrollbar"
             ref={followingRef}
             style={{
-              height: "300px",
+              height: "270px",
             }}
           >
             {followings &&
@@ -196,14 +214,14 @@ const ProfileRightBar = () => {
                           alt="User avatar"
                         />
                       )}
-                      <span className="hidden md:inline-block lg:text-2xl mt-1">
+                      <span className="text-xl md:text-2xl lg:text-2xl lg:mt-1">
                         {user.FirstName} {user.LastName}
                       </span>
                     </div>
 
                     <div>
                       <button
-                        className="bg-red-500 hover:bg-red-600 text-white py-2 ml-14 px-2 rounded-full"
+                        className="bg-red-500 hover:bg-red-600 text-white py-2 lg:py-2 ml-8 lg:ml-14 px-2 rounded-3xl"
                         onClick={() => handleUnfollow(user.Id)}
                       >
                         Unfollow
@@ -218,14 +236,13 @@ const ProfileRightBar = () => {
         <div>
           <div className="border-b-2 border-gray-500 opacity-50 pb-4 mt-8">
             <span className="text-2xl ">{totalFollowers} Followers</span>
-
           </div>
 
           <div
             className="pt-2 overflow-y-scroll no-scrollbar"
             ref={followerRef}
             style={{
-              height: "300px"
+              height: "250px",
             }}
           >
             {followers &&
@@ -248,7 +265,7 @@ const ProfileRightBar = () => {
                           alt="User avatar"
                         />
                       )}
-                      <span className="hidden md:inline-block lg:text-2xl">
+                      <span className="text-xl md:text-2xl lg:text-2xl">
                         {user.FirstName} {user.LastName}
                       </span>
                     </div>

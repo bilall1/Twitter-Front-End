@@ -208,7 +208,7 @@ const Tweet: React.FC<ChildProps> = ({
   };
   const handleCommentEdit = async () => {
     const postData = {
-      TweetId: TweetId,
+      Id: TweetId,
       Content: editedContent,
     };
 
@@ -231,7 +231,7 @@ const Tweet: React.FC<ChildProps> = ({
   };
 
   return (
-    <div className="ml-4 lg:ml-1 md:ml-1 lg:w-9/12 md:w-11/12 border-2 border-gray-100 mb-2 bg-white ">
+    <div className="ml-0 lg:ml-1 md:ml-1 lg:w-9/12 md:w-11/12 border-2 border-gray-100 mb-2 bg-white ">
       <div className="flex py-3 justify-between">
         <div className="flex px-2 ">
           {Profile ? (

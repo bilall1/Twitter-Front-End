@@ -386,11 +386,13 @@ const MessageMidSection = () => {
                           <div className="w-4/5 ">
                             <div className="flex flex-col px-4 md:pt-2 lg:pt-2">
                               <div className="flex justify-between ">
+
                                 <h2 className="sm:text-md md:text-lg lg:text-xl font-semibold">
                                   {conversation.UserFirstName}{" "}
                                   {conversation.UserLastName}
                                 </h2>
-
+                                
+                                <div className="flex">
                                 {status?.Status == "online" ? (
                                   <Image
                                     src={Online}
@@ -412,6 +414,8 @@ const MessageMidSection = () => {
                                 <span className="pl-4 text-md  text-gray-600">
                                   {date.getHours()}:{date.getMinutes()}
                                 </span>
+
+                                </div>
                               </div>
 
                               <h2 className="text-xs text-gray-600 text-opacity-60 ">
@@ -433,7 +437,7 @@ const MessageMidSection = () => {
         </div>
       </div>
 
-      <div id="chatBox" className="w-11/12 lg:w-3/5 mt-10 md:mt-14 lg:mt-20 lg:m-5 lg:border-l-2">
+      <div id="chatBox" className="w-11/12 lg:w-11/12 mt-10 md:mt-14 lg:mt-20 lg:m-5 lg:border-l-2">
         {chatuser ? (
           <div className="flex flex-col relative h-full">
             <div className="block lg:hidden">

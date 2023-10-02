@@ -189,7 +189,7 @@ const homeMidSection = () => {
   };
   const deleteTweet = async (id: number) => {
     try {
-      const response = await apiClient.delete(`/deleteTweet?TweetId=${id}`,config);
+      const response = await apiClient.delete(`/deleteTweet?Id=${id}`,config);
 
       setTweets((oldTweets) =>
         oldTweets ? oldTweets.filter((tweet) => tweet.Id !== id) : []
@@ -215,8 +215,8 @@ const homeMidSection = () => {
   };
 
   return (
-    <div className=" w-11/12 h-full flex flex-col pt-5 lg:pt-16 md:ml-3 md:pt-8  relative  ">
-      <h1 className="font-semibold font-sans text-2xl lg:text-3xl md:text-2xl text-gray-900 dark:text-white px-2 pl-4">Home</h1>
+    <div className=" w-11/12 h-full flex flex-col pt-5 lg:pt-16 md:ml-3 md:pt-8 relative z-20 ">
+      <h1 className="font-semibold font-sans text-2xl lg:text-3xl md:text-2xl text-gray-900 dark:text-white px-2 pl-5">Home</h1>
 
       <div className="lg:w-9/12 md:w-11/12 flex py-2 px-2 ">
         <div className="flex flex-col justify-between w-full mr-2">
@@ -237,7 +237,7 @@ const homeMidSection = () => {
               />
             )}
             <textarea
-              className="mt-2 lg:mt-6 md:mt-6 ml-2 px-2 lg:py-2 md:py-2 border w-full border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="text-sm mt-2 lg:mt-6 md:mt-6 ml-2 px-2 py-1 lg:py-2 md:py-2 border w-full border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
               maxLength={200}
               id="content"
               value={content}
@@ -284,15 +284,11 @@ const homeMidSection = () => {
         <br></br>
         <div className="py-4">
           <button
-            className="text-sm self-start px-1 mt-1 lg:mt-4 md:mt-4 py-1 bg-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            className="text-sm self-start px-1 mt-1 lg:mt-4 md:mt-4 py-1 bg-blue-400 rounded-md "
             type="submit"
             onClick={handleSubmit}
           >
-             <Image
-                    src={upload}
-                    alt="upload Image"
-                    className="h-6 w-6 "
-                  />
+             Post
           </button>
         </div>
       </div>
@@ -313,7 +309,7 @@ const homeMidSection = () => {
         </div>
       )}
 
-      <div className="py-4 px-2 ">
+      <div className="py-4 ml-4">
         {!reloading ? (
           <div>
             {tweets &&
