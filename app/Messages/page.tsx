@@ -51,7 +51,7 @@ const page = () => {
 
 
   return (
-    <div className="flex h-screen w-screen font-sans">
+    <div className="flex h-screen w-screen font-sans max-w-[2000px] 2xl:mx-auto">
     <SideBar />
     <MessageMidSection/>
     </div>
