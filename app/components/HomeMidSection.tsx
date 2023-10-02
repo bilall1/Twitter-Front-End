@@ -14,6 +14,7 @@ import Image from "next/image";
 import cross from "../assets/cross.png";
 import { ThreeDots } from "react-loader-spinner";
 import dummy from "../assets/dummy.png";
+import upload from "../assets/upload.png"
 
 //Interfaces
 import { MySession, TweetUser } from "../Interfaces/interface";
@@ -188,7 +189,7 @@ const homeMidSection = () => {
   };
   const deleteTweet = async (id: number) => {
     try {
-      const response = await apiClient.delete(`/deleteTweet?TweetId=${id}`,config);
+      const response = await apiClient.delete(`/deleteTweet?Id=${id}`,config);
 
       setTweets((oldTweets) =>
         oldTweets ? oldTweets.filter((tweet) => tweet.Id !== id) : []
@@ -214,10 +215,10 @@ const homeMidSection = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col pt-16">
-      <h1 className="text-3xl text-gray-900 dark:text-white px-2">Twitter</h1>
+    <div className=" w-11/12 h-full flex flex-col pt-5 lg:pt-16 md:ml-3 md:pt-8">
+      <h1 className="font-semibold font-sans text-2xl lg:text-3xl md:text-2xl text-gray-900 dark:text-white px-2 pl-5">Home</h1>
 
-      <div className="w-9/12 flex py-2 px-2">
+      <div className="lg:w-9/12 md:w-11/12 flex py-2 px-2 ">
         <div className="flex flex-col justify-between w-full mr-2">
           <div className="flex">
             {user.user.Profile ? (
@@ -236,7 +237,7 @@ const homeMidSection = () => {
               />
             )}
             <textarea
-              className="mt-6 ml-2 px-2 py-2 border w-full border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="text-sm mt-2 lg:mt-6 md:mt-6 ml-2 px-2 py-1 lg:py-2 md:py-2 border w-full border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
               maxLength={200}
               id="content"
               value={content}
@@ -247,7 +248,7 @@ const homeMidSection = () => {
 
           <div>
             {selected ? (
-              <div className="py-1 ml-20">
+              <div className="py-1 ml:10 lg:ml-20 md:ml-20 w-1/2">
                 <button>
                   <Image
                     src={cross}
@@ -269,11 +270,11 @@ const homeMidSection = () => {
                 <input
                   type="file"
                   onChange={handleImageChange}
-                  className=" py-2 text-sm text-stone-500 file:mr-5 file:py-1 file:px-3 file:border-[1px]
+                  className="py-2 text-sm text-stone-500 file:mr-5 file:py-1 file:px-3 file:border-[1px]
                                     file:text-xs file:font-medium
                                     file:bg-stone-50 file:text-stone-700
                                     hover:file:cursor-pointer hover:file:bg-blue-50
-                                    hover:file:text-blue-700"
+                                    hover:file:text-blue-700 w-full"
                 />
               </div>
             )}
@@ -283,11 +284,11 @@ const homeMidSection = () => {
         <br></br>
         <div className="py-4">
           <button
-            className="self-start px-2 mt-4 py-1 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            className="text-sm self-start px-1 mt-1 lg:mt-4 md:mt-4 py-1 bg-blue-400 rounded-md "
             type="submit"
             onClick={handleSubmit}
           >
-            Post
+             Post
           </button>
         </div>
       </div>
@@ -295,7 +296,7 @@ const homeMidSection = () => {
       <div></div>
 
       {requestComplete && (
-        <div className="w-9/12 flex items-center justify-center">
+        <div className="lg:w-9/12 md:w-11/12 flex items-center justify-center">
           <ThreeDots
             height="80"
             width="80"
@@ -308,7 +309,7 @@ const homeMidSection = () => {
         </div>
       )}
 
-      <div className="py-4 px-2">
+      <div className="py-4 ml-4">
         {!reloading ? (
           <div>
             {tweets &&

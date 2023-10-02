@@ -19,6 +19,7 @@ import { FiEdit2 } from "react-icons/fi";
 import { FiSave } from "react-icons/fi";
 import dummy from "../assets/dummy.png";
 import cross from "../assets/cross.png";
+import back from "../assets/back.png";
 //Interfaces
 import { MySession, TweetInterface } from "../Interfaces/interface";
 //Avatar
@@ -42,6 +43,9 @@ const Profile = () => {
       ThirdParty: user.user.ThirdParty,
     },
   };
+
+  //Right Bar
+  const [showRightBar, setShowRightBar] = useState(true);
 
   //Tweet
   const [page, setPage] = useState(1);
@@ -104,12 +108,8 @@ const Profile = () => {
     setReloading(false);
   }, [tweets]);
 
+  
   useEffect(() => {
-    // This function will be called when the user leaves the page
-    const handleUnload = async () => {
-      await UpdateUserStatus("offline");
-    };
-
     // Add the event listener when the component mounts
     window.addEventListener("beforeunload", handleUnload);
 
@@ -118,8 +118,36 @@ const Profile = () => {
       window.removeEventListener("beforeunload", handleUnload);
     };
   }, []);
+  
+
+  useEffect(() => {
+    
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+
+    return () => {
+      window.removeEventListener("resize", checkScreenSize);
+    };
+  }, []);
 
   //Functions
+
+  const handleUnload = async () => {
+    await UpdateUserStatus("offline");
+  };
+
+  const checkScreenSize = () => {
+    const width = window.innerWidth;
+    if (width >= 0 && width <= 1023) {
+      setShowRightBar(false);
+      const targetDiv = document.getElementById("MiddleSection");
+      if (targetDiv?.classList.contains("hidden")) {
+        targetDiv?.classList.remove("hidden");
+      }
+    } else {
+      setShowRightBar(true);
+    }
+  };
 
   const UpdateUserStatus = async (status: string) => {
     const postData = {
@@ -281,12 +309,8 @@ const Profile = () => {
   };
 
   const deleteTweet = async (id: number) => {
-    const postData = {
-      TweetId: id,
-    };
-
     try {
-      const response = await apiClient.post("/deleteTweet", postData, config);
+      const response = await apiClient.delete(`/deleteTweet?Id=${id}`, config);
 
       setTweets((oldTweets) =>
         oldTweets ? oldTweets.filter((tweet) => tweet.Id !== id) : []
@@ -297,13 +321,36 @@ const Profile = () => {
     }
   };
 
-  return (
-    <div className="flex h-screen w-screen font-sans">
-      <SideBar />
+  const handleClassAddition = async () => {
+    setShowRightBar(!showRightBar);
+    const targetDiv = document.getElementById("MiddleSection");
+    targetDiv?.classList.add("hidden");
+    targetDiv?.classList.add("lg:block");
+  };
 
-      <div className="w-full h-full flex flex-col pt-14 ">
+  const handleRightBarHide = async () => {
+    setShowRightBar(!showRightBar);
+    const targetDiv = document.getElementById("MiddleSection");
+    targetDiv?.classList.remove("hidden");
+    targetDiv?.classList.remove("lg:block");
+  };
+
+  return (
+    <div className="flex h-screen w-screen font-sans max-w-[2000px] 2xl:mx-auto">
+      <SideBar />
+      {showRightBar && (
+        <div className="block lg:hidden mt-10 ml-1 md:ml-20">
+          <button onClick={handleRightBarHide} className="p-4">
+            <Image src={back} alt="Back Icon" className="h-8 w-8 mb-2" />
+          </button>
+        </div>
+      )}
+      <div
+        id="MiddleSection"
+        className="w-full lg:w-10/12 h-full flex flex-col pt-10 lg:pt-14 ml-8 lg:ml-4 "
+      >
         <div>
-          <h1 className="text-3xl text-gray-900 dark:text-white px-2">
+          <h1 className="text-3xl font-semibold text-gray-900 dark:text-white px-2">
             Profile
           </h1>
         </div>
@@ -328,21 +375,21 @@ const Profile = () => {
 
               {image && !isCropped ? (
                 <Image
-                  className="rounded-full"
+                  className="rounded-full w-32 h-32"
                   src={URL.createObjectURL(image)}
                   alt="ProfileImage"
-                  width={180}
-                  height={180}
+                  width={1000}
+                  height={1000}
                 />
               ) : (
                 <div>
                   {user.user.Profile ? (
                     <Image
-                      className="rounded-full"
+                      className="rounded-full w-32 h-32 lg:w-48 lg:h-48"
                       src={user.user.Profile}
                       alt="ProfileImage"
-                      width={180}
-                      height={180}
+                      width={1000}
+                      height={1000}
                     />
                   ) : (
                     <Image
@@ -392,23 +439,24 @@ const Profile = () => {
 
             {isUpdatingPassword && (
               <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-                <div className="bg-white p-6 rounded-lg shadow-lg">
-                  <div className="flex-col">
-                    <button onClick={handleClosePasswordModal}>
-                      <Image
-                        src={cross}
-                        alt="Cross Icon"
-                        className="h-8 w-8 ml-96"
-                      />
-                    </button>
+                <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-1/2 lg:w-4/12">
+                  <div className="flex justify-between">
+                    <h3 className="font-bold text-md lg:text-xl text-gray-600 mb-6 ">
+                      Manage Password:
+                    </h3>
+                    <div className="flex-col">
+                      <button onClick={handleClosePasswordModal}>
+                        <Image
+                          src={cross}
+                          alt="Cross Icon"
+                          className="h-6 w-6 lg:h-7 lg:w-7 "
+                        />
+                      </button>
+                    </div>
                   </div>
 
-                  <h3 className="font-bold text-2xl text-gray-600 mb-6 mt-4">
-                    Manage Password:
-                  </h3>
-
                   <div className="flex m-2">
-                    <p className="text-lg text-gray-600 font-bold">
+                    <p className="text-sm md:text-md lg:text-lg text-gray-600 font-bold">
                       Old Password:
                     </p>
 
@@ -417,13 +465,13 @@ const Profile = () => {
                         type="password"
                         name="OldPassword"
                         onChange={handlePasswordFormUpdate}
-                        className="border rounded px-2 py-1"
+                        className="border rounded px-2 py-1 text-xs md:text-sm font-semibold lg:text-md"
                       />
                     </h2>
                   </div>
 
                   <div className="flex m-2">
-                    <p className="text-lg text-gray-600 font-bold">
+                    <p className="text-sm md:text-md lg:text-lg text-gray-600 font-bold">
                       New Password:
                     </p>
 
@@ -432,7 +480,7 @@ const Profile = () => {
                         type="password"
                         name="NewPassword"
                         onChange={handlePasswordFormUpdate}
-                        className="border rounded px-2 py-1"
+                        className="border rounded px-2 py-1 text-xs md:text-sm font-semibold lg:text-md"
                       />
                     </h2>
                   </div>
@@ -451,12 +499,21 @@ const Profile = () => {
               </div>
             )}
 
-            <h2 className="font-bold text-2xl text-gray-500">
+            <h2 className="font-bold text-xl lg:text-2xl text-gray-500">
               {user.user.FirstName} {user.user.LastName}
             </h2>
 
+            <div className="flex lg:hidden">
+              <button
+                className="items-center py-1 underline text-md text-blue-900"
+                onClick={handleClassAddition}
+              >
+                Follower/Following
+              </button>
+            </div>
+
             <button
-              className="flex items-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
+              className="flex items-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 md:py-2 lg:py-2 px-2 md:px-4 lg:px-4 rounded"
               onClick={() => {
                 setEditing(true);
               }}
@@ -497,23 +554,23 @@ const Profile = () => {
 
             {editing && (
               <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-                <div className="bg-white p-6 rounded-lg shadow-lg">
-                  <div className="flex-col">
+                <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-1/2 lg:w-4/12">
+                  <div className="flex justify-between mb-6 ">
+                    <h2 className="text-md lg:text-xl font-bold ">
+                      Personal Information
+                    </h2>
+
                     <button onClick={handleClosePersonalInfoModal}>
                       <Image
                         src={cross}
                         alt="Cross Icon"
-                        className="h-8 w-8 ml-96"
+                        className="w-5 h-5 lg:h-7 lg:w-7 "
                       />
                     </button>
                   </div>
 
-                  <h2 className="text-xl font-bold mb-4">
-                    Personal Information
-                  </h2>
-
                   <div className="flex m-2">
-                    <p className="text-lg text-gray-600 font-bold">
+                    <p className="text-md lg:text-lg text-gray-600 font-bold">
                       First Name:
                     </p>
 
@@ -524,7 +581,7 @@ const Profile = () => {
                           name="FirstName"
                           value={formData.FirstName}
                           onChange={handleInputChange}
-                          className="border rounded px-2 py-1"
+                          className="border rounded px-2 py-1 text-sm font-semibold lg:text-lg "
                         />
                       ) : (
                         user.user.FirstName
@@ -533,7 +590,7 @@ const Profile = () => {
                   </div>
 
                   <div className="flex m-2">
-                    <p className="text-lg text-gray-600 font-bold">
+                    <p className="text-md lg:text-lg text-gray-600 font-bold">
                       Last Name:
                     </p>
 
@@ -544,7 +601,7 @@ const Profile = () => {
                           name="LastName"
                           value={formData.LastName}
                           onChange={handleInputChange}
-                          className="border rounded px-2 py-1"
+                          className="border rounded px-2 py-1 text-sm font-semibold lg:text-lg"
                         />
                       ) : (
                         user.user.LastName
@@ -552,20 +609,22 @@ const Profile = () => {
                     </h2>
                   </div>
 
-                  <p className="text-lg text-gray-600 m-2">{user.user.Email}</p>
+                  <p className="lg:text-lg text-gray-600 m-2">
+                    {user.user.Email}
+                  </p>
 
                   <span className="flex m-2">
                     <p className="text-lg text-gray-600 font-bold">
                       Date of Birth:
                     </p>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-md lg:text-lg text-gray-600">
                       {editing ? (
                         <input
                           type="date"
                           name="D_o_b"
                           value={formData.D_o_b}
                           onChange={handleInputChange}
-                          className="border rounded px-2 py-1"
+                          className="border rounded px-2 py-1 text-sm font-semibold lg:text-lg"
                         />
                       ) : (
                         formattedDate
@@ -587,7 +646,7 @@ const Profile = () => {
 
         <div className="border-b-2 border-gray-500 opacity-50 my-4 w-3/4"></div>
 
-        <div className="py-4 px-2 flex flex-col ">
+        <div className="py-4 lg:px-2 flex flex-col w-11/12">
           {!reloading ? (
             <div>
               {tweets &&
@@ -616,7 +675,7 @@ const Profile = () => {
         </div>
       </div>
 
-      <ProfileRightBar />
+      {showRightBar && <ProfileRightBar />}
     </div>
   );
 };

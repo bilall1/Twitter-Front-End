@@ -21,6 +21,7 @@ import Online from "../assets/online.png";
 import Offline from "../assets/offline.png";
 import chatIcon from "../assets/chat.png";
 import Previous from "../assets/Previous.png";
+import back from "../assets/back.png";
 import { useSocketHook } from "../hooks/useSocketHook";
 import { Socket } from "net";
 
@@ -143,6 +144,7 @@ const MessageMidSection = () => {
     if (conversation.Id != chatuser?.Id) {
       setChat(null);
     }
+    handleClassAddition();
   }
 
   function handleUserClick(clickedUser: User) {
@@ -177,6 +179,7 @@ const MessageMidSection = () => {
       };
     });
     setNewMessagePane(false);
+    handleClassAddition();
   }
 
   const handleContentChange = (event: { target: { value: any } }) => {
@@ -246,34 +249,53 @@ const MessageMidSection = () => {
       console.log("Error sending messages");
     }
   };
+  const handleClassAddition = async () => {
+    const targetDiv = document.getElementById("targetDiv");
+    targetDiv?.classList.add("hidden");
+    targetDiv?.classList.add("lg:block");
+
+    const targetDiv1 = document.getElementById("chatBox");
+    if (targetDiv1?.classList.contains("hidden")) {
+      targetDiv1?.classList.remove("hidden");
+      targetDiv1?.classList.remove("lg:block");
+    }
+  };
+
+  const handleClassRemoval = async () => {
+    const targetDiv = document.getElementById("targetDiv");
+    targetDiv?.classList.remove("hidden");
+
+    const targetDiv1 = document.getElementById("chatBox");
+    targetDiv1?.classList.add("hidden");
+    targetDiv1?.classList.add("lg:block");
+  };
 
   return (
-    <div className="flex h-screen w-screen font-sans">
-      <div className="w-2/5">
-        <div className="fixed w-1/4 z-20">
-          <div className="mt-10 flex justify-between">
-            <h1 className="font-semibold text-2xl">Messages</h1>
-
+    <div className="flex h-screen w-screen font-sans relative ml-5 lg:ml-0">
+      <div id="targetDiv" className="w-full">
+        <div className="fixed w-full lg:w-1/4">
+          <div className="mt-6 md:mt-10 lg:mt-10 flex w-10/12 justify-between">
+            <h1 className=" font-semibold text-2xl">Messages</h1>
             <button onClick={handleNewMessageButton}>
               <Image
                 src={NewMessage}
                 alt="New Message Icon"
-                className="h-8 w-8"
+                className="h-6 w-6 lg:h-8 lg:w-8"
               />
             </button>
           </div>
 
           {newMessagePane && (
             <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-              <div className="bg-white p-6 rounded-lg shadow-lg w-2/7">
-                <div className="flex">
-                  <h1 className=" text-xl font-semibold">New Message</h1>
+              <div className="bg-white p-6 rounded-lg shadow-lg w-10/12 md:w-6/12 lg:w-3/12">
+                <div className="flex justify-between">
+                  <h1 className="text-md lg:text-xl font-semibold">New Message</h1>
 
                   <button onClick={handleClosePasswordModal}>
                     <Image
                       src={cross}
                       alt="Cross Icon"
-                      className="h-8 w-8 ml-96"
+                      className="h-5 w-5 lg:h-8 lg:w-8"
                     />
                   </button>
                 </div>
@@ -307,10 +329,10 @@ const MessageMidSection = () => {
 
                           <div>
                             <div className="flex flex-col px-4 pt-2">
-                              <h2 className=" text-xl font-semibold">
+                              <h2 className="text-md lg:text-xl font-semibold">
                                 {user.FirstName} {user.LastName}
                               </h2>
-                              <h2 className="text-m text-gray-600 text-opacity-60 ">
+                              <h2 className="text-xs lg:text-m text-gray-600 text-opacity-60 ">
                                 {user.Email}
                               </h2>
                             </div>
@@ -323,7 +345,7 @@ const MessageMidSection = () => {
             </div>
           )}
 
-          <div className="mt-3">
+          <div id="conversationSelect" className="mt-5 md:mt-3 lg:mt-3">
             {conversations &&
               conversations.map(
                 (
@@ -342,7 +364,7 @@ const MessageMidSection = () => {
                         className="pt-4"
                         onClick={() => handleConversationSelect(conversation)}
                       >
-                        <div className="flex mt-2 pt-2 pb-2 border-b-2">
+                        <div className="flex lg:mt-2 pb-1  md:pt-2 md:pb-2 lg:pt-2 lg:pb-2 border-b-2">
                           {conversation.UserProfile ? (
                             <Image
                               src={conversation.UserProfile}
@@ -362,17 +384,19 @@ const MessageMidSection = () => {
                           )}
 
                           <div className="w-4/5 ">
-                            <div className="flex flex-col px-4 pt-2">
+                            <div className="flex flex-col px-4 md:pt-2 lg:pt-2">
                               <div className="flex justify-between ">
-                                <h2 className=" text-xl font-semibold">
+
+                                <h2 className="sm:text-md md:text-lg lg:text-xl font-semibold">
                                   {conversation.UserFirstName}{" "}
                                   {conversation.UserLastName}
                                 </h2>
-
+                                
+                                <div className="flex">
                                 {status?.Status == "online" ? (
                                   <Image
                                     src={Online}
-                                    className="w-4 h-4 rounded-full  mt-2"
+                                    className="h-3 w-3 rounded-full  mt-2"
                                     width={100}
                                     height={100}
                                     alt="Online Icon"
@@ -380,23 +404,25 @@ const MessageMidSection = () => {
                                 ) : (
                                   <Image
                                     src={Offline}
-                                    className="w-4 h-4 rounded-full  mt-2"
+                                    className="h-3 w-3 rounded-full  mt-2"
                                     width={100}
                                     height={100}
                                     alt="Online Icon"
                                   />
                                 )}
 
-                                <span className="pl-4 text-m text-gray-600">
+                                <span className="pl-4 text-md  text-gray-600">
                                   {date.getHours()}:{date.getMinutes()}
                                 </span>
+
+                                </div>
                               </div>
 
-                              <h2 className=" text-xs text-gray-600 text-opacity-60 ">
+                              <h2 className="text-xs text-gray-600 text-opacity-60 ">
                                 {conversation.UserEmail}
                               </h2>
 
-                              <span className="text-xl mt-2 text-gray-600 font-mono ">
+                              <span className="text-lg lg:text-xl mt-2 text-gray-600 font-mono ">
                                 {conversation.LastMessage}
                               </span>
                             </div>
@@ -411,16 +437,22 @@ const MessageMidSection = () => {
         </div>
       </div>
 
-      <div className="w-3/5 mt-20 m-5 border-l-2">
+      <div id="chatBox" className="w-11/12 lg:w-11/12 mt-10 md:mt-14 lg:mt-20 lg:m-5 lg:border-l-2">
         {chatuser ? (
           <div className="flex flex-col relative h-full">
+            <div className="block lg:hidden">
+              <button onClick={handleClassRemoval}>
+                <Image src={back} alt="Back Icon" className="h-8 w-8 ml-4 md:ml-10" />
+              </button>
+            </div>
+
             <div className="flex justify-center ">
               <div className="flex flex-col justify-center items-center">
                 {chatuser.UserProfile ? (
                   <Image
                     src={chatuser.UserProfile}
                     alt="User avatar"
-                    className="w-24 h-24 rounded-full ml-5"
+                    className="h-16 w-16 lg:w-24 lg:h-24 rounded-full ml-5"
                     width={100}
                     height={100}
                   />
@@ -428,22 +460,22 @@ const MessageMidSection = () => {
                   <Image
                     src={dummy}
                     alt="User avatar"
-                    className="w-24 h-24 rounded-full ml-5"
+                    className="h-16 w-16 lg:w-24 lg:h-24 rounded-full ml-5"
                     width={100}
                     height={100}
                   />
                 )}
 
-                <h2 className="text-xl font-semibold mt-2">
+                <h2 className="text-lg md:text-xl lg:text-xl font-semibold mt-2">
                   {chatuser.UserFirstName} {chatuser.UserLastName}
                 </h2>
-                <h2 className="text-m text-gray-600 text-opacity-60 ">
+                <h2 className="text-sm md:text-m lg:text-m  text-gray-600 text-opacity-60 ">
                   {chatuser.UserEmail}
                 </h2>
 
                 <button>
                   <Image
-                    className=" mt-8 "
+                    className="mt-2 md:mt-6 lg:mt-8 h-6 w-6"
                     src={Previous}
                     alt="Previous Message Icon"
                     onClick={handlePreviousMessages}
@@ -454,7 +486,7 @@ const MessageMidSection = () => {
 
             <div
               ref={MessageDivRef}
-              className="flex flex-col ml-20 m-10 pb-10 overflow-y-scroll no-scrollbar"
+              className="flex flex-col mx-3 md:mx-10 lg:mx-10 pb-24 md:pb-16 lg:pb-16 overflow-y-scroll no-scrollbar"
             >
               {chat &&
                 chat.map(
@@ -463,11 +495,11 @@ const MessageMidSection = () => {
                     if (message.SenderId != user.user.Id) {
                       return (
                         <>
-                          <div className=" bg-gray-400 rounded-2xl p-4 self-start mt-2">
+                          <div className="text-sm lg:text-md bg-gray-400 rounded-xl md:rounded-2xl lg:rounded-2xl p-2 md:p-4 lg:p-4 self-start mt-2">
                             {message.Content}
                           </div>
 
-                          <span className="self-start ml-3 text-sm">
+                          <span className="self-start lg:ml-3 md:ml-3 text-xs md:text-sm lg:text-sm">
                             {date.getHours()}:{date.getMinutes()}
                           </span>
                         </>
@@ -475,11 +507,11 @@ const MessageMidSection = () => {
                     } else {
                       return (
                         <>
-                          <div className=" bg-blue-400 rounded-2xl p-4 self-end mt-2 flex flex-col">
+                          <div className="text-sm lg:text-md bg-blue-400 rounded-xl md:rounded-2xl lg:rounded-2xl p-2 md:p-4 lg:p-4  self-end mt-2 flex flex-col">
                             {message.Content}
                           </div>
 
-                          <span className="self-end mr-3 text-sm">
+                          <span className="self-end lg:mr-3 md:mr-3 text-xs md:text-sm lg:text-sm">
                             {date.getHours()}:{date.getMinutes()}
                           </span>
                         </>
@@ -489,9 +521,9 @@ const MessageMidSection = () => {
                 )}
             </div>
 
-            <div className="mt-2 flex absolute bottom-0 w-2/3 items-center start-36">
+            <div className="mt-2 flex absolute bottom-12 md:bottom-1 lg:bottom-0 w-11/12 md:w-2/3 lg:w-2/3 start-8 md:start-28 lg:start-28 ">
               <textarea
-                className="border w-full border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 p-2 text-m"
+                className="border w-full border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 md:p-2 lg:p-2 text-sm md:text-m lg:text-m"
                 maxLength={200}
                 id="content"
                 value={content}
@@ -502,13 +534,13 @@ const MessageMidSection = () => {
               <Image
                 src={SentMsg}
                 alt="User avatar"
-                className="w-10 h-10 rounded-full ml-5"
+                className="w-8 h-8 md:w-10 md:h-10 lg:w-10 lg:h-10 rounded-full ml-5"
                 onClick={handleSendMessage}
               />
             </div>
           </div>
         ) : (
-          <div className="flex justify-center items-center h-full">
+          <div className=" justify-center items-center h-full hidden lg:flex">
             <div className="flex flex-col items-center">
               <Image src={chatIcon} alt="User avatar" className="w-24 h-24" />
 
