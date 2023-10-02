@@ -215,7 +215,7 @@ const homeMidSection = () => {
   };
 
   return (
-    <div className=" w-11/12 h-full flex flex-col pt-5 lg:pt-16 md:ml-3 md:pt-8 relative z-20 ">
+    <div className=" w-11/12 h-full flex flex-col pt-5 lg:pt-16 md:ml-3 md:pt-8">
       <h1 className="font-semibold font-sans text-2xl lg:text-3xl md:text-2xl text-gray-900 dark:text-white px-2 pl-5">Home</h1>
 
       <div className="lg:w-9/12 md:w-11/12 flex py-2 px-2 ">

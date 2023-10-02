@@ -108,12 +108,8 @@ const Profile = () => {
     setReloading(false);
   }, [tweets]);
 
+  
   useEffect(() => {
-    // This function will be called when the user leaves the page
-    const handleUnload = async () => {
-      await UpdateUserStatus("offline");
-    };
-
     // Add the event listener when the component mounts
     window.addEventListener("beforeunload", handleUnload);
 
@@ -122,20 +118,10 @@ const Profile = () => {
       window.removeEventListener("beforeunload", handleUnload);
     };
   }, []);
+  
 
   useEffect(() => {
-    const checkScreenSize = () => {
-      const width = window.innerWidth;
-      if (width >= 0 && width <= 1023) {
-        setShowRightBar(false);
-        const targetDiv = document.getElementById("MiddleSection");
-        if (targetDiv?.classList.contains("hidden")) {
-          targetDiv?.classList.remove("hidden");
-        }
-      } else {
-        setShowRightBar(true);
-      }
-    };
+    
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
 
@@ -145,6 +131,23 @@ const Profile = () => {
   }, []);
 
   //Functions
+
+  const handleUnload = async () => {
+    await UpdateUserStatus("offline");
+  };
+
+  const checkScreenSize = () => {
+    const width = window.innerWidth;
+    if (width >= 0 && width <= 1023) {
+      setShowRightBar(false);
+      const targetDiv = document.getElementById("MiddleSection");
+      if (targetDiv?.classList.contains("hidden")) {
+        targetDiv?.classList.remove("hidden");
+      }
+    } else {
+      setShowRightBar(true);
+    }
+  };
 
   const UpdateUserStatus = async (status: string) => {
     const postData = {
