@@ -445,9 +445,7 @@ const MessageMidSection = () => {
                 ) => {
                   const date = new Date(conversation.LastChat);
                   var photo = false;
-                  console.log(conversation.LastMessage.length)
                   if (conversation.LastMessage.length > 150) {
-                    console.log(conversation.LastMessage.length)
                     photo = true;
                   }
 
