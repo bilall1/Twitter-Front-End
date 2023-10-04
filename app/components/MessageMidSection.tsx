@@ -21,9 +21,13 @@ import Online from "../assets/online.png";
 import Offline from "../assets/offline.png";
 import chatIcon from "../assets/chat.png";
 import Previous from "../assets/Previous.png";
+import ImageUpload from "../assets/uploadImage.png";
 import back from "../assets/back.png";
 import { useSocketHook } from "../hooks/useSocketHook";
 import { Socket } from "net";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { storage } from "../Firebase/firebase";
+import { genRandonString, resizeFile } from "../Shared/sharedFunctions";
 
 const MessageMidSection = () => {
   //Redux store
@@ -40,6 +44,13 @@ const MessageMidSection = () => {
   );
   const [allUserStatus, SetAllUserStatus] = useState<UserStatus[] | null>(null);
   const [reloadChat, setReloadChat] = useState(false);
+  const [messageImage, setMessageImage] = useState<any>(null);
+
+  const [previewImage, setPreviewImage] = useState<any>(null);
+  const [messageImageUrl, setMessageImageUrl] = useState<string | null>(null);
+  //Image Preview
+  const [imagePreview, setImagePreview] = useState(false);
+
   //Session
   const { data: session } = useSession({
     required: true,
@@ -227,26 +238,79 @@ const MessageMidSection = () => {
   };
 
   const handleSendMessage = async () => {
-    const postData = {
-      SenderId: user.user.Id,
-      RecieverId: chatuser?.UserId || 0,
-      MessageType: "text",
-      Status: "sent",
-      Content: content,
-      CreatedAt: getCurrentTimestamp(),
-      Id: 0,
-    };
+    if (messageImage) {
+      try {
+        if (messageImage) {
+          const imageRef = ref(storage, "messages/" + genRandonString());
 
-    try {
-      sendMessageThroughSocket();
-      const response = await apiClient.post("/sentMessage", postData, config);
-      setReloadChat(!reloadChat);
+          uploadBytes(imageRef, messageImage)
+            .then(() => {
+              getDownloadURL(imageRef)
+                .then(async (messageImageUrl: any) => {
+                  if (messageImageUrl) {
+                    setMessageImageUrl(messageImageUrl);
 
-      setChat((oldChat) => [...(oldChat || []), postData]);
+                    const postData = {
+                      SenderId: user.user.Id,
+                      RecieverId: chatuser?.UserId || 0,
+                      MessageType: "image",
+                      Status: "sent",
+                      Content: messageImageUrl,
+                      CreatedAt: getCurrentTimestamp(),
+                      Id: 0,
+                    };
 
-      setContent("");
-    } catch (error) {
-      console.log("Error sending messages");
+                    try {
+                      sendMessageThroughSocket();
+                      const response = await apiClient.post(
+                        "/sentMessage",
+                        postData,
+                        config
+                      );
+                      setReloadChat(!reloadChat);
+
+                      setChat((oldChat) => [...(oldChat || []), postData]);
+
+                      setContent("");
+                    } catch (error) {
+                      console.log("Error sending messages");
+                    }
+                  }
+                })
+                .catch((error: { message: any }) => {
+                  console.log(error.message, "error getting the image url");
+                });
+              setMessageImage(null);
+            })
+            .catch((error: { message: any }) => {
+              console.log(error.message);
+            });
+        }
+      } catch (error) {
+        console.error("Error posting content");
+      }
+    } else {
+      const postData = {
+        SenderId: user.user.Id,
+        RecieverId: chatuser?.UserId || 0,
+        MessageType: "text",
+        Status: "sent",
+        Content: content,
+        CreatedAt: getCurrentTimestamp(),
+        Id: 0,
+      };
+
+      try {
+        sendMessageThroughSocket();
+        const response = await apiClient.post("/sentMessage", postData, config);
+        setReloadChat(!reloadChat);
+
+        setChat((oldChat) => [...(oldChat || []), postData]);
+
+        setContent("");
+      } catch (error) {
+        console.log("Error sending messages");
+      }
     }
   };
   const handleClassAddition = async () => {
@@ -270,6 +334,31 @@ const MessageMidSection = () => {
     targetDiv1?.classList.add("lg:block");
   };
 
+  const handleImageChange = async (e: any) => {
+    if (e.target.files[0]) {
+      const image = await resizeFile(e.target.files[0]);
+      setMessageImage(image);
+    }
+  };
+
+  const removeMessageImage = async () => {
+    setMessageImage(null);
+  };
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const handleIconClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+  const handleImagePreview = async (path: string) => {
+    setPreviewImage(path);
+    setImagePreview(!imagePreview);
+  };
+  const removePreviewImage = async () => {
+    setPreviewImage(null);
+    setImagePreview(!imagePreview);
+  };
+
   return (
     <div className="flex h-screen w-screen font-sans relative ml-5 lg:ml-0">
       <div id="targetDiv" className="w-full">
@@ -289,7 +378,9 @@ const MessageMidSection = () => {
             <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
               <div className="bg-white p-6 rounded-lg shadow-lg w-10/12 md:w-6/12 lg:w-3/12">
                 <div className="flex justify-between">
-                  <h1 className="text-md lg:text-xl font-semibold">New Message</h1>
+                  <h1 className="text-md lg:text-xl font-semibold">
+                    New Message
+                  </h1>
 
                   <button onClick={handleClosePasswordModal}>
                     <Image
@@ -353,6 +444,12 @@ const MessageMidSection = () => {
                   index: React.Key | null | undefined
                 ) => {
                   const date = new Date(conversation.LastChat);
+                  var photo = false;
+                  console.log(conversation.LastMessage.length)
+                  if (conversation.LastMessage.length > 150) {
+                    console.log(conversation.LastMessage.length)
+                    photo = true;
+                  }
 
                   const status = allUserStatus?.find(
                     (status) => status.UserId === conversation.UserId
@@ -386,35 +483,33 @@ const MessageMidSection = () => {
                           <div className="w-4/5 ">
                             <div className="flex flex-col px-4 md:pt-2 lg:pt-2">
                               <div className="flex justify-between ">
-
                                 <h2 className="sm:text-md md:text-lg lg:text-xl font-semibold">
                                   {conversation.UserFirstName}{" "}
                                   {conversation.UserLastName}
                                 </h2>
-                                
+
                                 <div className="flex">
-                                {status?.Status == "online" ? (
-                                  <Image
-                                    src={Online}
-                                    className="h-3 w-3 rounded-full  mt-2"
-                                    width={100}
-                                    height={100}
-                                    alt="Online Icon"
-                                  />
-                                ) : (
-                                  <Image
-                                    src={Offline}
-                                    className="h-3 w-3 rounded-full  mt-2"
-                                    width={100}
-                                    height={100}
-                                    alt="Online Icon"
-                                  />
-                                )}
+                                  {status?.Status == "online" ? (
+                                    <Image
+                                      src={Online}
+                                      className="h-3 w-3 rounded-full  mt-2"
+                                      width={100}
+                                      height={100}
+                                      alt="Online Icon"
+                                    />
+                                  ) : (
+                                    <Image
+                                      src={Offline}
+                                      className="h-3 w-3 rounded-full  mt-2"
+                                      width={100}
+                                      height={100}
+                                      alt="Online Icon"
+                                    />
+                                  )}
 
-                                <span className="pl-4 text-md  text-gray-600">
-                                  {date.getHours()}:{date.getMinutes()}
-                                </span>
-
+                                  <span className="pl-4 text-md  text-gray-600">
+                                    {date.getHours()}:{date.getMinutes()}
+                                  </span>
                                 </div>
                               </div>
 
@@ -423,7 +518,11 @@ const MessageMidSection = () => {
                               </h2>
 
                               <span className="text-lg lg:text-xl mt-2 text-gray-600 font-mono ">
-                                {conversation.LastMessage}
+                                {photo ? (
+                                  <p>Image</p>
+                                ) : (
+                                  conversation.LastMessage
+                                )}
                               </span>
                             </div>
                           </div>
@@ -437,12 +536,19 @@ const MessageMidSection = () => {
         </div>
       </div>
 
-      <div id="chatBox" className="w-11/12 lg:w-11/12 mt-10 md:mt-14 lg:mt-20 lg:m-5 lg:border-l-2">
+      <div
+        id="chatBox"
+        className="w-11/12 lg:w-11/12 mt-10 md:mt-14 lg:mt-20 lg:m-5 lg:border-l-2"
+      >
         {chatuser ? (
           <div className="flex flex-col relative h-full">
             <div className="block lg:hidden">
               <button onClick={handleClassRemoval}>
-                <Image src={back} alt="Back Icon" className="h-8 w-8 ml-4 md:ml-10" />
+                <Image
+                  src={back}
+                  alt="Back Icon"
+                  className="h-8 w-8 ml-4 md:ml-10"
+                />
               </button>
             </div>
 
@@ -495,9 +601,24 @@ const MessageMidSection = () => {
                     if (message.SenderId != user.user.Id) {
                       return (
                         <>
-                          <div className="text-sm lg:text-md bg-gray-400 rounded-xl md:rounded-2xl lg:rounded-2xl p-2 md:p-4 lg:p-4 self-start mt-2">
-                            {message.Content}
-                          </div>
+                          {message.MessageType == "image" ? (
+                            <div
+                              className="flex w-1/2 "
+                              onClick={() =>
+                                handleImagePreview(message.Content)
+                              }
+                            >
+                              <img
+                                src={message.Content}
+                                alt="messageImage"
+                                className="rounded-xl"
+                              />
+                            </div>
+                          ) : (
+                            <div className="text-sm lg:text-md bg-gray-400 rounded-xl md:rounded-2xl lg:rounded-2xl p-2 md:p-4 lg:p-4 self-start mt-2">
+                              {message.Content}
+                            </div>
+                          )}
 
                           <span className="self-start lg:ml-3 md:ml-3 text-xs md:text-sm lg:text-sm">
                             {date.getHours()}:{date.getMinutes()}
@@ -507,9 +628,24 @@ const MessageMidSection = () => {
                     } else {
                       return (
                         <>
-                          <div className="text-sm lg:text-md bg-blue-400 rounded-xl md:rounded-2xl lg:rounded-2xl p-2 md:p-4 lg:p-4  self-end mt-2 flex flex-col">
-                            {message.Content}
-                          </div>
+                          {message.MessageType == "image" ? (
+                            <div
+                              className="flex justify-end w-1/2 self-end "
+                              onClick={() =>
+                                handleImagePreview(message.Content)
+                              }
+                            >
+                              <img
+                                src={message.Content}
+                                alt="messageImage"
+                                className="rounded-xl"
+                              />
+                            </div>
+                          ) : (
+                            <div className="text-sm lg:text-md bg-blue-400 rounded-xl md:rounded-2xl lg:rounded-2xl p-2 md:p-4 lg:p-4  self-end mt-2 flex flex-col">
+                              {message.Content}
+                            </div>
+                          )}
 
                           <span className="self-end lg:mr-3 md:mr-3 text-xs md:text-sm lg:text-sm">
                             {date.getHours()}:{date.getMinutes()}
@@ -521,15 +657,75 @@ const MessageMidSection = () => {
                 )}
             </div>
 
-            <div className="mt-2 flex absolute bottom-12 md:bottom-1 lg:bottom-0 w-11/12 md:w-2/3 lg:w-2/3 start-8 md:start-28 lg:start-28 ">
-              <textarea
-                className="border w-full border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 md:p-2 lg:p-2 text-sm md:text-m lg:text-m"
-                maxLength={200}
-                id="content"
-                value={content}
-                onChange={handleContentChange}
-                placeholder="Start a new message"
-              />
+            {messageImage? 
+              <div className="flex mb-20 ml-10 ">
+                <img
+                  src={URL.createObjectURL(messageImage)}
+                  className="rounded-lg h-52 w-52"
+                />
+
+                <Image
+                  src={cross}
+                  alt="Delete"
+                  className="h-8 w-8 "
+                  onClick={removeMessageImage}
+                />
+              </div>
+              :
+              <></>
+            }
+
+            {imagePreview && (
+              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-80">
+                <div className="p-6 rounded-lg shadow-lg flex">
+                  <img src={previewImage} alt="Image Preview" />
+                  <Image
+                    src={cross}
+                    alt="Delete"
+                    className="h-6 w-6 "
+                    onClick={removePreviewImage}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="mt-2 flex absolute bottom-12 md:bottom-1 lg:bottom-0 w-11/12  start-8 md:start-28 lg:start-28 bg-white">
+              <div className="flex items-center">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
+
+                <Image
+                  src={ImageUpload}
+                  alt="Upload Icon"
+                  className="cursor-pointer "
+                  onClick={handleIconClick}
+                />
+              </div>
+
+              {messageImage ? (
+                <textarea
+                  className="border w-full border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 md:p-2 lg:p-2 text-sm md:text-m lg:text-m"
+                  maxLength={150}
+                  id="content"
+                  value={content}
+                  onChange={handleContentChange}
+                  placeholder="Start a new message"
+                  readOnly
+                ></textarea>
+              ) : (
+                <textarea
+                  className="border w-full border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 md:p-2 lg:p-2 text-sm md:text-m lg:text-m"
+                  maxLength={200}
+                  id="content"
+                  value={content}
+                  onChange={handleContentChange}
+                  placeholder="Start a new message"
+                ></textarea>
+              )}
 
               <Image
                 src={SentMsg}
