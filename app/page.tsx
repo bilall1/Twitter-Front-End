@@ -10,6 +10,19 @@ import HomePage from "./components/HomePage";
 import { useSocketHook } from "./hooks/useSocketHook";
 import apiClient from "./api/api";
 import { MySession } from "./Interfaces/interface";
+import { requestForToken } from "./Firebase/token";
+import { getMessaging, onMessage } from "firebase/messaging";
+import { onMessageListener } from "./Firebase/firebase";
+import toast, { Toaster } from 'react-hot-toast';
+
+
+type FirebaseNotification = {
+  notification?: {
+    title?: string;
+    body?: string;
+  };
+};
+
 
 export default function Home() {
   //Redux
@@ -29,17 +42,57 @@ export default function Home() {
     },
   };
 
+
+  const [notification, setNotification] = useState({ title: '', body: '' });
+
+  onMessageListener()
+    .then((payload) => {
+      const data: FirebaseNotification = payload as FirebaseNotification;
+      setNotification({
+        title: data?.notification?.title || '',
+        body: data?.notification?.body || ''
+      });
+    })
+    .catch((err) => console.log('failed: ', err));
+
+
+
+
+
   //UseEffects
 
   useEffect(() => {
     if (userEmail != "invalid") {
       dispatch(fetchUsers(userEmail));
+      requestForToken();
     }
   }, [userEmail]);
+
 
   useEffect(() => {
     if (user.user.Id != 0) connectToSocket();
   }, [user.user]);
+
+
+
+
+  const notify = () => toast(<ToastDisplay />);
+  function ToastDisplay() {
+    return (
+      <div>
+        <p><b>{notification?.title}</b></p>
+        <p>{notification?.body}</p>
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    if (notification?.title) {
+      notify()
+
+    }
+  }, [notification])
+
 
   //Functions
 
@@ -86,5 +139,11 @@ export default function Home() {
   if (!session) {
     <p>LoadIng</p>;
   }
-  return <HomePage />;
+  return(
+  <div>
+    <Toaster />
+    <HomePage />;
+  </div>
+  )
+
 }

@@ -4,6 +4,7 @@ import { getAnalytics } from "firebase/analytics";
 import { getStorage } from "firebase/storage";
 
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getMessaging, onMessage } from "firebase/messaging";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -21,9 +22,18 @@ const firebaseConfig = ({
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const messaging = getMessaging();
 
 if (app.name && typeof window !== 'undefined') {
     const analytics = getAnalytics(app);
 }
 
 export const storage = getStorage(app);
+
+export const onMessageListener = () =>
+  new Promise((resolve) => {
+    onMessage(messaging, (payload) => {
+      console.log("payload", payload)
+      resolve(payload);
+    });
+  });
