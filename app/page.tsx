@@ -14,6 +14,7 @@ import { requestForToken } from "./Firebase/token";
 import { getMessaging, onMessage } from "firebase/messaging";
 import { onMessageListener } from "./Firebase/firebase";
 import toast, { Toaster } from 'react-hot-toast';
+import { promises } from "dns";
 
 
 type FirebaseNotification = {
@@ -64,15 +65,32 @@ export default function Home() {
   useEffect(() => {
     if (userEmail != "invalid") {
       dispatch(fetchUsers(userEmail));
-      requestForToken();
     }
   }, [userEmail]);
 
 
   useEffect(() => {
-    if (user.user.Id != 0) connectToSocket();
+    if (user.user.Id != 0) {
+      connectToSocket();
+      requestForToken().then(token => {
+        UpdateNotificationToken(token)
+      });
+    }
   }, [user.user]);
 
+
+  const UpdateNotificationToken = async (token: any) => {
+    
+    const postData = {
+      UserId: user.user.Id,
+      Token: token,
+    };
+    try {
+      const response = await apiClient.put("/updateNotificationToken", postData, config);
+    } catch (error) {
+      console.log("Error setting notification token");
+    }
+  };
 
 
 
@@ -139,11 +157,11 @@ export default function Home() {
   if (!session) {
     <p>LoadIng</p>;
   }
-  return(
-  <div>
-    <Toaster />
-    <HomePage />;
-  </div>
+  return (
+    <div>
+      <Toaster />
+      <HomePage />;
+    </div>
   )
 
 }
