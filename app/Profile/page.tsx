@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import { useAppDispatch, useAppSelector } from "../Redux/hooks";
 import { fetchUsers } from "../Redux/features/user/userSlice";
 //FireBase
-import { storage } from "../Firebase/firebase";
+import { onMessageListener, storage } from "../Firebase/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 //Componenents
 import SideBar from "../components/SideBar";
@@ -21,9 +21,14 @@ import dummy from "../assets/dummy.png";
 import cross from "../assets/cross.png";
 import back from "../assets/back.png";
 //Interfaces
-import { MySession, TweetInterface } from "../Interfaces/interface";
+import {
+  FirebaseNotification,
+  MySession,
+  TweetInterface,
+} from "../Interfaces/interface";
 //Avatar
 import AvatarEditor from "react-avatar-editor";
+import toast, { Toaster } from "react-hot-toast";
 
 const Profile = () => {
   //Redux store
@@ -92,6 +97,9 @@ const Profile = () => {
     NewPassword: "",
   });
 
+  //Firebase Notification
+  const [notification, setNotification] = useState({ title: "", body: "" });
+
   //UseEffects
   useEffect(() => {
     retrieveTweets();
@@ -108,7 +116,6 @@ const Profile = () => {
     setReloading(false);
   }, [tweets]);
 
-  
   useEffect(() => {
     // Add the event listener when the component mounts
     window.addEventListener("beforeunload", handleUnload);
@@ -118,10 +125,8 @@ const Profile = () => {
       window.removeEventListener("beforeunload", handleUnload);
     };
   }, []);
-  
 
   useEffect(() => {
-    
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
 
@@ -131,6 +136,34 @@ const Profile = () => {
   }, []);
 
   //Functions
+
+  onMessageListener()
+    .then((payload) => {
+      const data: FirebaseNotification = payload as FirebaseNotification;
+      setNotification({
+        title: data?.notification?.title || "",
+        body: data?.notification?.body || "",
+      });
+    })
+    .catch((err) => console.log("failed: ", err));
+
+  const notify = () => toast(<ToastDisplay />);
+  function ToastDisplay() {
+    return (
+      <div>
+        <p>
+          <b>{notification?.title}</b>
+        </p>
+        <p>{notification?.body}</p>
+      </div>
+    );
+  }
+
+  useEffect(() => {
+    if (notification?.title) {
+      notify();
+    }
+  }, [notification]);
 
   const handleUnload = async () => {
     await UpdateUserStatus("offline");
@@ -337,6 +370,7 @@ const Profile = () => {
 
   return (
     <div className="flex h-screen w-screen font-sans max-w-[2000px] 2xl:mx-auto">
+      <Toaster />
       <SideBar />
       {showRightBar && (
         <div className="block lg:hidden mt-10 ml-1 md:ml-20">

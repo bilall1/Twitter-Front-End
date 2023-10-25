@@ -9,18 +9,11 @@ import { fetchUsers } from "./Redux/features/user/userSlice";
 import HomePage from "./components/HomePage";
 import { useSocketHook } from "./hooks/useSocketHook";
 import apiClient from "./api/api";
-import { MySession } from "./Interfaces/interface";
+import { FirebaseNotification, MySession } from "./Interfaces/interface";
 import { requestForToken } from "./Firebase/token";
 import { getMessaging, onMessage } from "firebase/messaging";
 import { onMessageListener } from "./Firebase/firebase";
 import toast, { Toaster } from "react-hot-toast";
-
-type FirebaseNotification = {
-  notification?: {
-    title?: string;
-    body?: string;
-  };
-};
 
 export default function Home() {
   //Redux
@@ -52,23 +45,6 @@ export default function Home() {
     })
     .catch((err) => console.log("failed: ", err));
 
-  //UseEffects
-
-  useEffect(() => {
-    if (userEmail != "invalid") {
-      dispatch(fetchUsers(userEmail));
-    }
-  }, [userEmail]);
-
-  useEffect(() => {
-    if (user.user.Id != 0) {
-      connectToSocket();
-      requestForToken().then((token) => {
-        UpdateNotificationToken(token);
-      });
-    }
-  }, [user.user]);
-
   const UpdateNotificationToken = async (token: any) => {
     const postData = {
       UserId: user.user.Id,
@@ -96,6 +72,23 @@ export default function Home() {
       </div>
     );
   }
+
+  //UseEffects
+
+  useEffect(() => {
+    if (userEmail != "invalid") {
+      dispatch(fetchUsers(userEmail));
+    }
+  }, [userEmail]);
+
+  useEffect(() => {
+    if (user.user.Id != 0) {
+      connectToSocket();
+      requestForToken().then((token) => {
+        UpdateNotificationToken(token);
+      });
+    }
+  }, [user.user]);
 
   useEffect(() => {
     if (notification?.title) {
