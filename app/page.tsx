@@ -13,9 +13,7 @@ import { MySession } from "./Interfaces/interface";
 import { requestForToken } from "./Firebase/token";
 import { getMessaging, onMessage } from "firebase/messaging";
 import { onMessageListener } from "./Firebase/firebase";
-import toast, { Toaster } from 'react-hot-toast';
-import { promises } from "dns";
-
+import toast, { Toaster } from "react-hot-toast";
 
 type FirebaseNotification = {
   notification?: {
@@ -23,7 +21,6 @@ type FirebaseNotification = {
     body?: string;
   };
 };
-
 
 export default function Home() {
   //Redux
@@ -39,26 +36,21 @@ export default function Home() {
   const config = {
     headers: {
       Authorization: `Bearer ${(session as MySession)?.accessToken}`,
-      ThirdParty: user.user.ThirdParty,
+      ThirdParty: user?.user.ThirdParty,
     },
   };
 
-
-  const [notification, setNotification] = useState({ title: '', body: '' });
+  const [notification, setNotification] = useState({ title: "", body: "" });
 
   onMessageListener()
     .then((payload) => {
       const data: FirebaseNotification = payload as FirebaseNotification;
       setNotification({
-        title: data?.notification?.title || '',
-        body: data?.notification?.body || ''
+        title: data?.notification?.title || "",
+        body: data?.notification?.body || "",
       });
     })
-    .catch((err) => console.log('failed: ', err));
-
-
-
-
+    .catch((err) => console.log("failed: ", err));
 
   //UseEffects
 
@@ -68,49 +60,48 @@ export default function Home() {
     }
   }, [userEmail]);
 
-
   useEffect(() => {
     if (user.user.Id != 0) {
       connectToSocket();
-      requestForToken().then(token => {
-        UpdateNotificationToken(token)
+      requestForToken().then((token) => {
+        UpdateNotificationToken(token);
       });
     }
   }, [user.user]);
 
-
   const UpdateNotificationToken = async (token: any) => {
-    
     const postData = {
       UserId: user.user.Id,
       Token: token,
     };
     try {
-      const response = await apiClient.put("/updateNotificationToken", postData, config);
+      const response = await apiClient.put(
+        "/updateNotificationToken",
+        postData,
+        config
+      );
     } catch (error) {
       console.log("Error setting notification token");
     }
   };
 
-
-
   const notify = () => toast(<ToastDisplay />);
   function ToastDisplay() {
     return (
       <div>
-        <p><b>{notification?.title}</b></p>
+        <p>
+          <b>{notification?.title}</b>
+        </p>
         <p>{notification?.body}</p>
       </div>
     );
-  };
+  }
 
   useEffect(() => {
     if (notification?.title) {
-      notify()
-
+      notify();
     }
-  }, [notification])
-
+  }, [notification]);
 
   //Functions
 
@@ -162,6 +153,5 @@ export default function Home() {
       <Toaster />
       <HomePage />;
     </div>
-  )
-
+  );
 }

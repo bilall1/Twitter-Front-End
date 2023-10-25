@@ -69,8 +69,9 @@ const MessageMidSection = () => {
 
   //UseEffects
   useEffect(() => {
+    console.log("send")
     GetConversations();
-  }, [reloadChat]);
+  }, [reloadChat,session]);
 
   useEffect(() => {
     GetMessages();
