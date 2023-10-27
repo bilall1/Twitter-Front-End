@@ -1,5 +1,5 @@
 //React
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
 import apiClient from "../api/api";
 import { useSession } from "next-auth/react";
 import Tweet from "./Tweet";
@@ -22,10 +22,32 @@ import { MySession, TweetUser } from "../Interfaces/interface";
 //Shared
 import { genRandonString } from "../Shared/sharedFunctions";
 import { resizeFile } from "../Shared/sharedFunctions";
+import MyContext from "../context/userContext";
+
+
+interface UserState {
+  Id: number;
+  Email: string;
+  Password: string;
+  ThirdParty: boolean;
+  D_o_b: string;
+  FirstName: string;
+  LastName: string;
+  Profile: string;
+}
+
+interface MyContextType {
+  userState: UserState;
+  setUserState: Dispatch<SetStateAction<UserState>>;
+}
 
 const homeMidSection = () => {
+
+
+  const context = useContext(MyContext);
+  const { userState, setUserState } = context as MyContextType;
   //Redux store
-  const user = useAppSelector((state) => state.user);
+ // const user = useAppSelector((state) => state.user);
 
   //Component Re-render
   const [loading, setLoading] = useState(false);
@@ -53,17 +75,17 @@ const homeMidSection = () => {
   const config = {
     headers: {
       Authorization: `Bearer ${(session as MySession)?.accessToken}`,
-      ThirdParty: user.user.ThirdParty,
+      ThirdParty: userState?.ThirdParty,
     },
   };
 
   //useEffects
 
   useEffect(() => {
-    if (userEmail != "invalid" && user.user.Email != "") {
+    if (userEmail != "invalid" && userState?.Email != "") {
       retrieveTweets();
     }
-  }, [userEmail, page, user.user.Email]);
+  }, [userEmail, page, userState?.Email]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
@@ -75,14 +97,15 @@ const homeMidSection = () => {
   useEffect(() => {
     setReloading(false);
   }, [tweets]);
-
+  
   //Functions
 
   const retrieveTweets = async () => {
     setLoading(true);
+
     try {
       const response = await apiClient.get(
-        `/getFollowersTweet?Id=${user.user.Id}&Page=${page}`,
+        `/getFollowersTweet?Id=${userState?.Id}&Page=${page}`,
         config
       );
       setTweets((oldTweets) =>
@@ -90,12 +113,12 @@ const homeMidSection = () => {
           ? [...oldTweets, ...response.data.Tweets]
           : response.data.Tweets
       );
-      reloading;
     } catch (error) {
       console.error("Error while retrieving home tweets:");
     }
     setLoading(false);
     setReloading(false);
+    
   };
 
   const handleScroll = (event: any) => {
@@ -127,7 +150,7 @@ const homeMidSection = () => {
                   setUrl(url);
 
                   const postData = {
-                    Id: user.user.Id,
+                    Id: userState?.Id,
                     Content: content,
                     Link: url,
                   };
@@ -141,10 +164,10 @@ const homeMidSection = () => {
                   var object: TweetUser = {
                     Id: response.data.Tweet.Id,
                     Content: response.data.Tweet.Content,
-                    Email: user.user.Email,
-                    FirstName: user.user.FirstName,
-                    LastName: user.user.LastName,
-                    Profile: user.user.Profile,
+                    Email:userState?.Email,
+                    FirstName:userState?.FirstName,
+                    LastName:userState?.LastName,
+                    Profile: userState?.Profile,
                     Link: url,
                   };
                   setTweets((oldTweets) =>
@@ -164,7 +187,7 @@ const homeMidSection = () => {
           });
       } else {
         const postData = {
-          Id: user.user.Id,
+          Id: userState?.Id,
           Content: content,
           Link: null,
         };
@@ -173,10 +196,10 @@ const homeMidSection = () => {
         var object: TweetUser = {
           Id: response.data.Tweet.Id,
           Content: response.data.Tweet.Content,
-          Email: user.user.Email,
-          FirstName: user.user.FirstName,
-          LastName: user.user.LastName,
-          Profile: user.user.Profile,
+          Email: userState?.Email,
+          FirstName:userState?.FirstName,
+          LastName: userState?.LastName,
+          Profile: userState?.Profile,
           Link: url,
         };
         setTweets((oldTweets) => (oldTweets ? [object, ...oldTweets] : null));
@@ -221,10 +244,10 @@ const homeMidSection = () => {
       <div className="lg:w-9/12 md:w-11/12 flex py-2 px-2 ">
         <div className="flex flex-col justify-between w-full mr-2">
           <div className="flex">
-            {user.user.Profile ? (
+            {userState?.Profile ? (
               <Image
                 className="rounded-full h-12 w-12 ml-2 mt-2 "
-                src={user.user.Profile}
+                src={userState?.Profile}
                 alt="Profile"
                 width={100}
                 height={100}

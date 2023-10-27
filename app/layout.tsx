@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import SessionProvider from "./components/SessionProvider";
 import ReduxProvider from "../app/components/ReduxProvider";
+import UserProvider from "./context/userProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,11 +19,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <ReduxProvider>
+      {/* <ReduxProvider> */}
+      <UserProvider>
         <SessionProvider>
           <body className={inter.className}>{children}</body>
         </SessionProvider>
-      </ReduxProvider>
+      </UserProvider>
+      {/* </ReduxProvider> */}
     </html>
   );
 }

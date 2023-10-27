@@ -1,22 +1,76 @@
 "use client"
-import React, { useEffect } from 'react'
+import React, { Dispatch, SetStateAction, useContext, useEffect } from 'react'
 import SideBar from '../components/SideBar'
 import MessageMidSection from '../components/MessageMidSection'
 import apiClient from '../api/api';
 import { useAppSelector } from '../Redux/hooks';
 import { useSession } from 'next-auth/react';
 import { MySession } from '../Interfaces/interface';
+import MyContext from '../context/userContext';
+
+interface UserState {
+  Id: number;
+  Email: string;
+  Password: string;
+  ThirdParty: boolean;
+  D_o_b: string;
+  FirstName: string;
+  LastName: string;
+  Profile: string;
+}
+
+interface MyContextType {
+  userState: UserState;
+  setUserState: Dispatch<SetStateAction<UserState>>;
+}
+
 
 const page = () => {
-  const user = useAppSelector((state) => state.user);
+ // const user = useAppSelector((state) => state.user);
+
+ const context = useContext(MyContext);
+ const { userState, setUserState } = context as MyContextType;
+
+
+
   const { data: session } = useSession({
     required: true,
   });
 
+  const userEmail = session?.user?.email || "invalid";
+
+
+  useEffect(() => {
+    console.log("called")
+    if (userEmail != "invalid") {
+  
+  console.log("Request preceded")
+      apiClient
+      .get("/getUser", {
+        params: {
+          Email: userEmail,
+        },
+      })
+      .then((response) => 
+       //get data from database
+       
+       setUserState((prevState: any) => ({
+        ...prevState, 
+        Email: response.data.user.Email,
+        Id: response.data.user.Id,
+      }))  
+      );
+  
+  
+     
+  
+    }
+  }, [userEmail]);
+
   const config = {
     headers: {
       Authorization: `Bearer ${(session as MySession)?.accessToken}`,
-      ThirdParty: user.user.ThirdParty,
+      ThirdParty: userState?.ThirdParty,
     },
   };
   
@@ -38,7 +92,7 @@ const page = () => {
 
   const UpdateUserStatus = async (status: string) => {
     const postData = {
-      UserId: user.user.Id,
+      UserId: userState?.Id,
       Status: status,
     };
 

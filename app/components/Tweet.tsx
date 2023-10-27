@@ -1,5 +1,5 @@
 //React
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
 import { useAppSelector } from "../Redux/hooks";
 import apiClient from "../api/api";
 //Images
@@ -12,6 +12,7 @@ import done from "../assets/done.png";
 //Interface
 import {MySession, TweetComments} from "../Interfaces/interface"
 import { useSession } from "next-auth/react";
+import MyContext from "../context/userContext";
 
 interface ChildProps {
   TweetId: number;
@@ -22,6 +23,22 @@ interface ChildProps {
   Profile: string;
   Link: string | null;
   onDelete: (id: number) => void;
+}
+
+interface UserState {
+  Id: number;
+  Email: string;
+  Password: string;
+  ThirdParty: boolean;
+  D_o_b: string;
+  FirstName: string;
+  LastName: string;
+  Profile: string;
+}
+
+interface MyContextType {
+  userState: UserState;
+  setUserState: Dispatch<SetStateAction<UserState>>;
 }
 
 const Tweet: React.FC<ChildProps> = ({
@@ -35,8 +52,12 @@ const Tweet: React.FC<ChildProps> = ({
   onDelete,
 }) => {
 
+
+  const context = useContext(MyContext);
+  const { userState, setUserState } = context as MyContextType;
+
   //Redux store
-  const user = useAppSelector((state) => state.user);
+  //const user = useAppSelector((state) => state.user);
 
   //Comments
   const [commentOnTweets, setCommentOnTweets] = useState<
@@ -69,7 +90,7 @@ const Tweet: React.FC<ChildProps> = ({
   const config = {
     headers: {
       Authorization: `Bearer ${(session as MySession)?.accessToken}`,
-      ThirdParty: user.user.ThirdParty,
+      ThirdParty:userState?.ThirdParty,
     },
   };
 
@@ -116,9 +137,9 @@ const Tweet: React.FC<ChildProps> = ({
     e.preventDefault();
 
     const postData = {
-      UserId: user.user.Id,
+      UserId: userState?.Id,
       TweetId: TweetId,
-      Content: commentBoxValue,
+      Content: commentBoxValue, 
     };
 
     try {
@@ -133,7 +154,7 @@ const Tweet: React.FC<ChildProps> = ({
 
   const ifLiked = async () => {
     try {
-      const response = await apiClient.get(`/getIfTweetLiked?TweetId=${TweetId}&UserId=${user.user.Id}`,config);
+      const response = await apiClient.get(`/getIfTweetLiked?TweetId=${TweetId}&UserId=${userState?.Id}`,config);
       setlikeResponse(response.data.Like);
     } catch (error) {
       console.error("Error getting if liked");
@@ -163,7 +184,7 @@ const Tweet: React.FC<ChildProps> = ({
   const handleLike = async () => {
     const postData = {
       TweetId: TweetId,
-      UserId: user.user.Id,
+      UserId: userState?.Id,
     };
     try {
       const response = await apiClient.post("/likeTweet", postData,config);
@@ -181,7 +202,7 @@ const Tweet: React.FC<ChildProps> = ({
   const handleUnLike = async () => {
     const postData = {
       TweetId: TweetId,
-      UserId: user.user.Id,
+      UserId:userState?.Id,
     };
     try {
       const response = await apiClient.post("/unlikeTweet", postData,config);
@@ -258,7 +279,7 @@ const Tweet: React.FC<ChildProps> = ({
           </div>
         </div>
 
-        {user.user.Email === email ? (
+        {userState?.Email === email ? (
           <div className="mr-4">
             <button className="text-2xl" onClick={() => setIsOpen(!isOpen)}>
               &hellip;
@@ -286,7 +307,7 @@ const Tweet: React.FC<ChildProps> = ({
         )}
       </div>
 
-      {user.user.Email === email ? (
+      {userState?.Email === email ? (
         <div>
           {isEditing ? (
             <div className="pl-12 pr-2 py-1 lg:px-20 md:pl-14 md:pr-4">

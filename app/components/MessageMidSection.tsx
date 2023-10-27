@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../Redux/hooks";
 import apiClient from "../api/api";
 //Session
@@ -28,10 +28,33 @@ import { Socket } from "net";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { storage } from "../Firebase/firebase";
 import { genRandonString, resizeFile } from "../Shared/sharedFunctions";
+import MyContext from "../context/userContext";
+
+interface UserState {
+  Id: number;
+  Email: string;
+  Password: string;
+  ThirdParty: boolean;
+  D_o_b: string;
+  FirstName: string;
+  LastName: string;
+  Profile: string;
+}
+
+interface MyContextType {
+  userState: UserState;
+  setUserState: Dispatch<SetStateAction<UserState>>;
+}
+
 
 const MessageMidSection = () => {
+
+
+  const context = useContext(MyContext);
+  const { userState, setUserState } = context as MyContextType;
+
   //Redux store
-  const user = useAppSelector((state) => state.user);
+  // const user = useAppSelector((state) => state.user);
   //Messaging
   const [newMessagePane, setNewMessagePane] = useState(false);
   const [otherUsers, setOtherUsers] = useState<User[] | null>(null);
@@ -60,16 +83,15 @@ const MessageMidSection = () => {
   const config = {
     headers: {
       Authorization: `Bearer ${(session as MySession)?.accessToken}`,
-      ThirdParty: user.user.ThirdParty,
+      ThirdParty: userState?.ThirdParty,
     },
   };
   //Socket variable
-  const { socket } = useSocketHook(user.user.Id);
+  const { socket } = useSocketHook(userState?.Id);
   const MessageDivRef = useRef<HTMLDivElement>(null);
 
   //UseEffects
   useEffect(() => {
-    console.log("send")
     GetConversations();
   }, [reloadChat,session]);
 
@@ -88,7 +110,7 @@ const MessageMidSection = () => {
   const GetOnlineStatus = async () => {
     try {
       const response = await apiClient.get(
-        `/getOnlineStatus?Id=${user.user.Id}`,
+        `/getOnlineStatus?Id=${userState?.Id}`,
         config
       );
       SetAllUserStatus(response.data.status);
@@ -100,7 +122,7 @@ const MessageMidSection = () => {
   const GetConversations = async () => {
     try {
       const response = await apiClient.get(
-        `/getConversations?Id=${user.user.Id}`,
+        `/getConversations?Id=${userState?.Id}`,
         config
       );
       setConversations(response.data.conversations);
@@ -113,7 +135,7 @@ const MessageMidSection = () => {
   const GetMessages = async () => {
     try {
       const response = await apiClient.get(
-        `/getMessages?SenderId=${user.user.Id}&RecieverId=${chatuser?.UserId}&Page=${chatPage}`,
+        `/getMessages?SenderId=${userState?.Id}&RecieverId=${chatuser?.UserId}&Page=${chatPage}`,
         config
       );
       if (response.data.messages) {
@@ -137,7 +159,7 @@ const MessageMidSection = () => {
 
     try {
       const response = await apiClient.get(
-        `/findOtherUsers?Id=${user.user.Id}`,
+        `/findOtherUsers?Id=${userState?.Id}`,
         config
       );
       setOtherUsers(response.data.user);
@@ -227,7 +249,7 @@ const MessageMidSection = () => {
   const sendMessageThroughSocket = () => {
     if (socket) {
       const messageData = {
-        SenderId: user.user.Id,
+        SenderId: userState?.Id,
         RecieverId: chatuser?.UserId,
         Content: content,
         CreatedAt: getCurrentTimestamp(),
@@ -252,7 +274,7 @@ const MessageMidSection = () => {
                     setMessageImageUrl(messageImageUrl);
 
                     const postData = {
-                      SenderId: user.user.Id,
+                      SenderId: userState?.Id,
                       RecieverId: chatuser?.UserId || 0,
                       MessageType: "image",
                       Status: "sent",
@@ -292,7 +314,7 @@ const MessageMidSection = () => {
       }
     } else {
       const postData = {
-        SenderId: user.user.Id,
+        SenderId: userState?.Id,
         RecieverId: chatuser?.UserId || 0,
         MessageType: "text",
         Status: "sent",
@@ -597,7 +619,7 @@ const MessageMidSection = () => {
                 chat.map(
                   (message: Message, index: React.Key | null | undefined) => {
                     const date = new Date(message.CreatedAt);
-                    if (message.SenderId != user.user.Id) {
+                    if (message.SenderId != userState?.Id) {
                       return (
                         <>
                           {message.MessageType == "image" ? (

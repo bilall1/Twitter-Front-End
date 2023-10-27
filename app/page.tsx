@@ -1,7 +1,13 @@
 "use client";
 //React
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 //Redux
 import { useAppSelector, useAppDispatch } from "./Redux/hooks";
 import { fetchUsers } from "./Redux/features/user/userSlice";
@@ -15,10 +21,34 @@ import { getMessaging, onMessage } from "firebase/messaging";
 import { onMessageListener } from "./Firebase/firebase";
 import toast, { Toaster } from "react-hot-toast";
 
+import userContext from "./context/userContext";
+import Email from "next-auth/providers/email";
+import MyContext from "./context/userContext";
+
+interface UserState {
+  Id: number;
+  Email: string;
+  Password: string;
+  ThirdParty: boolean;
+  D_o_b: string;
+  FirstName: string;
+  LastName: string;
+  Profile: string;
+}
+
+interface MyContextType {
+  userState: UserState;
+  setUserState: Dispatch<SetStateAction<UserState>>;
+}
+
 export default function Home() {
+  //Context
+  const context = useContext(MyContext);
+  const { userState, setUserState } = context as MyContextType;
+
   //Redux
-  const user = useAppSelector((state) => state.user);
-  const dispatch = useAppDispatch();
+  //const user = useAppSelector((state) => state.user);
+  //const dispatch = useAppDispatch();
 
   //Session
   const { data: session } = useSession({
@@ -29,7 +59,7 @@ export default function Home() {
   const config = {
     headers: {
       Authorization: `Bearer ${(session as MySession)?.accessToken}`,
-      ThirdParty: user?.user.ThirdParty,
+      ThirdParty: userState?.ThirdParty,
     },
   };
 
@@ -47,7 +77,7 @@ export default function Home() {
 
   const UpdateNotificationToken = async (token: any) => {
     const postData = {
-      UserId: user.user.Id,
+      UserId: userState?.Id,
       Token: token,
     };
     try {
@@ -76,19 +106,41 @@ export default function Home() {
   //UseEffects
 
   useEffect(() => {
+    console.log("called")
     if (userEmail != "invalid") {
-      dispatch(fetchUsers(userEmail));
+      //dispatch(fetchUsers(userEmail));
+
+
+      apiClient
+      .get("/getUser", {
+        params: {
+          Email: userEmail,
+        },
+      })
+      .then((response) => 
+       //get data from database
+       
+       setUserState((prevState: any) => ({
+        ...prevState, 
+        Email: response.data.user.Email,
+        Id: response.data.user.Id,
+      }))  
+      );
+
+
+     
+
     }
   }, [userEmail]);
 
   useEffect(() => {
-    if (user.user.Id != 0) {
+    if (userState?.Id != 0) {
       connectToSocket();
       requestForToken().then((token) => {
         UpdateNotificationToken(token);
       });
     }
-  }, [user.user]);
+  }, [userState]);
 
   useEffect(() => {
     if (notification?.title) {
@@ -115,7 +167,7 @@ export default function Home() {
 
   const UpdateUserStatus = async (status: string) => {
     const postData = {
-      UserId: user.user.Id,
+      UserId: userState?.Id,
       Status: status,
     };
 
@@ -127,7 +179,7 @@ export default function Home() {
   };
 
   const connectToSocket = () => {
-    const { socket } = useSocketHook(user.user.Id);
+    const { socket } = useSocketHook(userState?.Id);
 
     socket.onopen = function () {
       UpdateUserStatus("online");
@@ -139,12 +191,13 @@ export default function Home() {
   };
 
   if (!session) {
-    <p>LoadIng</p>;
-  }
-  return (
-    <div>
-      <Toaster />
+    <p>Session Expired Login Again</p>;
+  } else {
+    return (
+      <div>
+        <Toaster />
       <HomePage />;
-    </div>
-  );
+      </div>
+    );
+  }
 }

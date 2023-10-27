@@ -1,6 +1,6 @@
 "use client";
 //React
-import React, { useEffect, useRef, useState } from "react";
+import React, { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from "react";
 import apiClient from "@/app/api/api";
 import { useSession } from "next-auth/react";
 //Redux
@@ -29,11 +29,37 @@ import {
 //Avatar
 import AvatarEditor from "react-avatar-editor";
 import toast, { Toaster } from "react-hot-toast";
+import MyContext from "../context/userContext";
+
+interface UserState {
+  Id: number;
+  Email: string;
+  Password: string;
+  ThirdParty: boolean;
+  D_o_b: string;
+  FirstName: string;
+  LastName: string;
+  Profile: string;
+}
+
+interface MyContextType {
+  userState: UserState;
+  setUserState: Dispatch<SetStateAction<UserState>>;
+}
+
+
 
 const Profile = () => {
+
+
+
+  const context = useContext(MyContext);
+  const { userState, setUserState } = context as MyContextType;
   //Redux store
-  const user = useAppSelector((state) => state.user);
-  const dispatch = useAppDispatch();
+  
+  //Redux store
+ // const user = useAppSelector((state) => state.user);
+  //const dispatch = useAppDispatch();
 
   //Sesssion
   const { data: session } = useSession({
@@ -45,7 +71,7 @@ const Profile = () => {
   const config = {
     headers: {
       Authorization: `Bearer ${(session as MySession)?.accessToken}`,
-      ThirdParty: user.user.ThirdParty,
+      ThirdParty: userState?.ThirdParty,
     },
   };
 
@@ -75,16 +101,16 @@ const Profile = () => {
   let formattedDate;
 
   //Form Data
-  if (user.user.D_o_b == "") {
+  if (userState?.D_o_b == "") {
     formattedDate = "";
   } else {
-    date = new Date(user.user.D_o_b);
+    date = new Date(userState?.D_o_b);
     formattedDate = date.toISOString().slice(0, 10);
   }
   const [formData, setFormData] = useState({
-    FirstName: user.user.FirstName,
-    LastName: user.user.LastName,
-    Email: user.user.Email,
+    FirstName: userState?.FirstName,
+    LastName: userState?.LastName,
+    Email: userState?.Email,
     D_o_b: formattedDate,
   });
 
@@ -99,6 +125,32 @@ const Profile = () => {
 
   //Firebase Notification
   const [notification, setNotification] = useState({ title: "", body: "" });
+
+
+  useEffect(() => {
+    console.log("called")
+    if (userEmail != "invalid") {
+  
+  console.log("Request preceded")
+      apiClient
+      .get("/getUser", {
+        params: {
+          Email: userEmail,
+        },
+      })
+      .then((response) => 
+       //get data from database
+       
+       setUserState((prevState: any) => ({
+        ...prevState, 
+        Email: response.data.user.Email,
+        Id: response.data.user.Id,
+      }))  
+      );
+
+  
+    }
+  }, [userEmail]);
 
   //UseEffects
   useEffect(() => {
@@ -184,7 +236,7 @@ const Profile = () => {
 
   const UpdateUserStatus = async (status: string) => {
     const postData = {
-      UserId: user.user.Id,
+      UserId: userState?.Id,
       Status: status,
     };
 
@@ -208,7 +260,7 @@ const Profile = () => {
     setPasswordValid("");
     try {
       const postData = {
-        Id: user.user.Id,
+        Id: userState?.Id,
         OldPassword: passwordForm.OldPassword,
         NewPassword: passwordForm.NewPassword,
       };
@@ -254,7 +306,7 @@ const Profile = () => {
 
   const handleProfileSubmit = async () => {
     if (image) {
-      const imageRef = ref(storage, "profile/" + user.user.Id);
+      const imageRef = ref(storage, "profile/" + userState?.Id);
 
       uploadBytes(imageRef, image)
         .then(() => {
@@ -264,7 +316,7 @@ const Profile = () => {
                 setUrl(url);
 
                 const postData = {
-                  Id: user.user.Id,
+                  Id: userState?.Id,
                   Link: url,
                 };
 
@@ -274,7 +326,7 @@ const Profile = () => {
                     postData,
                     config
                   );
-                  dispatch(fetchUsers(userEmail));
+                  //dispatch(fetchUsers(userEmail));
                 } catch (error) {
                   console.error("Cant submit profile in data base");
                 }
@@ -304,14 +356,14 @@ const Profile = () => {
 
     try {
       const postData = {
-        Id: user.user.Id,
+        Id: userState?.Id,
         FirstName: formData.FirstName,
         LastName: formData.LastName,
         D_o_b: formData.D_o_b,
       };
 
       const response = await apiClient.put("/updateUserData", postData, config);
-      dispatch(fetchUsers(userEmail));
+      //dispatch(fetchUsers(userEmail));
     } catch (error) {
       console.error("Error while retrieving tweets:");
     }
@@ -417,10 +469,10 @@ const Profile = () => {
                 />
               ) : (
                 <div>
-                  {user.user.Profile ? (
+                  {userState?.Profile ? (
                     <Image
                       className="rounded-full w-32 h-32 lg:w-48 lg:h-48"
-                      src={user.user.Profile}
+                      src={userState?.Profile}
                       alt="ProfileImage"
                       width={1000}
                       height={1000}
@@ -534,7 +586,7 @@ const Profile = () => {
             )}
 
             <h2 className="font-bold text-xl lg:text-2xl text-gray-500">
-              {user.user.FirstName} {user.user.LastName}
+              {userState?.FirstName} {userState?.LastName}
             </h2>
 
             <div className="flex lg:hidden">
@@ -567,7 +619,7 @@ const Profile = () => {
               </svg>
             </button>
 
-            {!user.user.ThirdParty && (
+            {!userState?.ThirdParty && (
               <button
                 className="flex items-center bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded "
                 onClick={() => {
@@ -618,7 +670,7 @@ const Profile = () => {
                           className="border rounded px-2 py-1 text-sm font-semibold lg:text-lg "
                         />
                       ) : (
-                        user.user.FirstName
+                        userState?.FirstName
                       )}
                     </h2>
                   </div>
@@ -638,13 +690,13 @@ const Profile = () => {
                           className="border rounded px-2 py-1 text-sm font-semibold lg:text-lg"
                         />
                       ) : (
-                        user.user.LastName
+                        userState?.LastName
                       )}
                     </h2>
                   </div>
 
                   <p className="lg:text-lg text-gray-600 m-2">
-                    {user.user.Email}
+                    {userState?.Email}
                   </p>
 
                   <span className="flex m-2">
@@ -691,12 +743,12 @@ const Profile = () => {
                   ) => (
                     <Tweet
                       key={index}
-                      email={user.user.Email}
+                      email={userState?.Email}
                       content={tweet.Content}
-                      FirstName={user.user.FirstName}
-                      LastName={user.user.LastName}
+                      FirstName={userState?.FirstName}
+                      LastName={userState?.LastName}
                       TweetId={tweet.Id}
-                      Profile={user.user.Profile}
+                      Profile={userState?.Profile}
                       onDelete={deleteTweet}
                       Link={tweet.Link}
                     />
@@ -709,7 +761,7 @@ const Profile = () => {
         </div>
       </div>
 
-      {showRightBar && <ProfileRightBar />}
+    {/* {showRightBar && <ProfileRightBar />} */}
     </div>
   );
 };
